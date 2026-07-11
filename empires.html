@@ -117,13 +117,18 @@ const TW=64,TH=32,MAP=44;
 const cvs=document.createElement('canvas');document.body.appendChild(cvs);
 const ctx=cvs.getContext('2d');ctx.imageSmoothingEnabled=false;
 function px(g,x,y,w,h,c){g.fillStyle=c;g.fillRect(x,y,w,h)}
-function spriteTuile(base,fonce,motif){
+function spriteTuile(base,fonce,motif,dense){
  const c=document.createElement('canvas');c.width=TW;c.height=TH;const g=c.getContext('2d');
  g.beginPath();g.moveTo(TW/2,0);g.lineTo(TW,TH/2);g.lineTo(TW/2,TH);g.lineTo(0,TH/2);g.closePath();
- g.fillStyle=base;g.fill();g.strokeStyle=fonce;g.lineWidth=1;g.stroke();
+ g.fillStyle=base;g.fill();
  g.save();g.clip();
- for(let i=0;i<26;i++)px(g,Math.random()*TW,Math.random()*TH,2,2,Math.random()<.5?fonce:motif);
+ for(let i=0;i<(dense||70);i++){const r=Math.random();
+  px(g,Math.random()*TW,Math.random()*TH,r<.3?3:2,2,r<.45?fonce:r<.85?motif:base)}
+ // brins d'herbe / relief léger
+ for(let i=0;i<10;i++)px(g,Math.random()*TW,Math.random()*TH,1,3,fonce);
  g.restore();return c}
+function ombre(g,X,Y,w){g.fillStyle='rgba(0,0,0,.28)';g.beginPath();
+ g.ellipse(X,Y,w,w*.42,0,0,7);g.fill()}
 function spriteArbre(){
  const c=document.createElement('canvas');c.width=32;c.height=44;const g=c.getContext('2d');
  px(g,14,30,4,12,'#5d4037');
@@ -202,7 +207,10 @@ function spriteUnite(type){
  return c}
 const SPR={};
 function initSprites(){
- SPR.herbe=spriteTuile('#4a8f3c','#2e6b24','#63a852');
+ SPR.herbe0=spriteTuile('#4a8f3c','#2e6b24','#63a852');       // herbe verte
+ SPR.herbe1=spriteTuile('#7a9440','#5a7028','#96ad55');       // herbe sèche
+ SPR.herbe2=spriteTuile('#9c8a52','#78683a','#b3a068',90);    // terre battue
+ SPR.herbe=SPR.herbe0;
  SPR.eau=spriteTuile('#2874c9','#1a4f8f','#4a94e0');
  SPR.sable=spriteTuile('#d9c47e','#b3985a','#e8d89a');
  SPR.foret=spriteTuile('#3c7a30','#255220','#4a8f3c');
@@ -227,6 +235,9 @@ function genCarte(){
    else if(b>1.25&&c2>0.4)t='or';
    const cell={t,res:t==='foret'?60:t==='roche'?80:t==='or'?50:0,bat:null};
    const hash=(x*7+y*13)%19;
+   const gv=bruit(x,y,.09,23); // taches AoE : herbe verte / sèche / terre
+   cell.gv=gv>0.85?1:gv<-1.05?2:0;
+   if(Math.hypot(x-22,y-22)<4.5)cell.gv=2; // terre battue autour du camp
    if(t==='foret')cell.v=hash%3===0?'arbre':hash%3===1?'pin':(b<-.5?'palmier':'pin');
    if(t==='herbe'&&hash===5&&(x*3+y*5)%11===0)cell.dec='buisson';
    if(t==='sable'&&hash%6===0)cell.dec='palmier';
@@ -417,13 +428,17 @@ function rendre(){
   const[ix,iy]=iso(x,y),X=ix+cam.x,Y=iy+cam.y;
   if(X<-TW||Y<-80||X>cvs.width||Y>cvs.height+40)continue;
   const c=carte[y][x];
-  g.drawImage(SPR[c.t==='foret'?'foret':c.t==='roche'||c.t==='or'?'herbe':c.t],X-TW/2,Y);
-  if(c.t==='foret')g.drawImage(SPR[c.v||'arbre'],X-16,Y-28);
-  if(c.dec)g.drawImage(SPR[c.dec],X-12,Y-(c.dec==='palmier'?30:2));
-  if(c.t==='roche')g.drawImage(SPR.roche,X-16,Y-8);
-  if(c.t==='or')g.drawImage(SPR.or,X-16,Y-8)}
+  const fond=c.t==='foret'?'foret':c.t==='roche'||c.t==='or'?'herbe'+(c.gv||0):c.t==='herbe'?'herbe'+(c.gv||0):c.t;
+  g.drawImage(SPR[fond],X-TW/2,Y);
+  if(c.t==='foret'){ombre(g,X,Y+22,14);
+   g.drawImage(SPR[c.v||'arbre'],X-22,Y-40,44,62)}
+  if(c.dec){if(c.dec==='palmier'){ombre(g,X,Y+20,13);g.drawImage(SPR.palmier,X-24,Y-44,50,66)}
+   else g.drawImage(SPR.buisson,X-12,Y+2,26,18)}
+  if(c.t==='roche'){ombre(g,X,Y+18,15);g.drawImage(SPR.roche,X-20,Y-14,42,34)}
+  if(c.t==='or'){ombre(g,X,Y+18,15);g.drawImage(SPR.or,X-20,Y-14,42,34)}}
  for(const a of animaux){const[ix,iy]=iso(a.x-.5,a.y-.5);
-  g.drawImage(SPR.gazelle,ix+cam.x-12,iy+cam.y-12)}
+  ombre(g,ix+cam.x,iy+cam.y+13,9);
+  g.drawImage(SPR.gazelle,ix+cam.x-15,iy+cam.y-16,30,25)}
  // bâtiments + unités triés par profondeur
  const objs=[];
  for(const b of batiments)objs.push({d:b.x+b.y+BATS[b.id].w,b});
@@ -432,13 +447,15 @@ function rendre(){
  for(const o of objs){
   if(o.b){const b=o.b,sp=SPR['bat_'+b.id],[ix,iy]=iso(b.x+BATS[b.id].w/2-.5,b.y+BATS[b.id].w/2-.5);
    const X=ix+cam.x,Y=iy+cam.y;
+   ombre(g,X,Y+TH/2-2,sp.width*.42);
    g.globalAlpha=b.fini?1:.45+b.prog/220;
    g.drawImage(sp,X-sp.width/2,Y-sp.height+TH/2);g.globalAlpha=1;
    if(!b.fini){px(g,X-24,Y+6,48,6,'#00000088');px(g,X-23,Y+7,46*b.prog/100,4,'#3dba6f')}
    if(S.sel===b){g.strokeStyle='#e8a33d';g.lineWidth=2;g.strokeRect(X-sp.width/2,Y-sp.height+TH/2,sp.width,sp.height)}}
   else{const u=o.u,[ix,iy]=iso(u.x-.5,u.y-.5),X=ix+cam.x,Y=iy+cam.y;
    const bob=Math.sin(u.t*6)*(u.cible?2:0);
-   g.drawImage(SPR[u.type],X-8,Y-20+bob,16,24);
+   ombre(g,X,Y+9,9);
+   g.drawImage(SPR[u.type],X-11,Y-26+bob,22,33);
    if(u.sac>0)px(g,X-2,Y-24+bob,5,4,u.sacType==='bois'?'#8d6e63':u.sacType==='or'?'#ffd54f':'#90a4ae');
    if(S.sel===u){g.strokeStyle='#e8a33d';g.lineWidth=2;g.beginPath();g.ellipse(X,Y+4,12,6,0,0,7);g.stroke()}}}
  // feu de camp au centre de départ
