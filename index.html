@@ -271,6 +271,31 @@ function chateau(cx,cz){
  poserBloc(cx+7,h+1,cz+11,'or');poserBloc(cx+7,h+2,cz+11,'laine_rouge');
  poserBloc(cx+6,h+1,cz-1,'torche');poserBloc(cx+8,h+1,cz-1,'torche');
  return[cx+7,h+1,cz+10]}
+function moulin(x,z){ // style AoE2 : tour ronde en pierre + ailes en planches
+ const h=colonne(x,z);
+ for(let dy=1;dy<=6;dy++)for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++)
+  if(Math.abs(dx)+Math.abs(dz)<2)poserBloc(x+dx,h+dy,z+dz,dy<=5?'pierre':'toit');
+ poserBloc(x,h+7,z,'toit');
+ for(let i=-2;i<=2;i++){ // ailes en croix
+  poserBloc(x+i,h+5,z-2,'planches');
+  const vy=h+5+i;if(vy>h+2&&vy<h+8)poserBloc(x,vy,z-2,'planches')}}
+function forge(x,z){ // atelier + cheminée fumante
+ const h=colonne(x,z);
+ for(let dx=0;dx<4;dx++)for(let dz=0;dz<4;dz++)for(let dy=1;dy<=2;dy++){
+  const bord=dx===0||dx===3||dz===0||dz===3;
+  if(bord&&!(dz===0&&dx===1&&dy<=2))poserBloc(x+dx,h+dy,z+dz,'pierre')}
+ for(let dx=-1;dx<5;dx++)for(let dz=-1;dz<5;dz++)poserBloc(x+dx,h+3,z+dz,'toit');
+ for(let dy=1;dy<=5;dy++)poserBloc(x+3,h+dy,z+3,'roche_volcan'); // cheminée
+ poserBloc(x+3,h+6,z+3,'feu');
+ poserBloc(x+1,h+1,z+2,'feu');poserBloc(x+2,h+1,z+2,'pierre')} // foyer + enclume
+function marche(x,z){ // étals à auvents colorés
+ const h=colonne(x,z);
+ const auvents=['laine_rouge','laine_jaune','laine_bleue'];
+ for(let i=0;i<3;i++){const mx=x+i*3;
+  poserBloc(mx,h+1,z,'planches');poserBloc(mx+1,h+1,z,'planches');
+  poserBloc(mx,h+2,z,auvents[i]);poserBloc(mx+1,h+2,z,auvents[i]);
+  poserBloc(mx,h+1,z+2,'or')} // marchandises
+ for(let dx=-1;dx<9;dx++)poserBloc(x+dx,h,z+1,'chemin')}
 function chemin(x1,z1,x2,z2){
  let x=x1,z=z1;
  while(Math.abs(x-x2)>0||Math.abs(z-z2)>0){
@@ -311,6 +336,7 @@ function genMonde(){
  SPAWNS.push({t:'astronome',p:maison(vx+3,vz+10)});
  SPAWNS.push({t:'professeur',p:maison(vx+12,vz+11)});
  champ(vx-8,vz+2);champ(vx-8,vz+8);
+ moulin(vx-4,vz+14);forge(vx+16,vz+4);marche(vx+2,vz-4);
  const pr=chateau(64,20);
  SPAWNS.push({t:'roi',p:pr});
  SPAWNS.push({t:'guerrier',p:[64+7,colonne(64+7,20-2)+1,20-2]});
