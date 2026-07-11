@@ -114,6 +114,13 @@ h2{color:var(--or);margin:12px 0 6px;font-size:18px}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
+// ══════════ DIAGNOSTIC ══════════
+window.onerror=function(msg,src,l,c){
+ let d=document.getElementById('errbox');
+ if(!d){d=document.createElement('div');d.id='errbox';
+  d.style.cssText='position:fixed;top:0;left:0;right:0;background:#b71c1c;color:#fff;padding:10px;font-size:13px;z-index:99;white-space:pre-wrap';
+  document.body.appendChild(d)}
+ d.textContent+='⚠ '+msg+' (ligne '+l+')\n';return false};
 // ══════════ DONNÉES ══════════
 const PROFILS=[
  {id:'leana',emoji:'🌸',nom:'Léana',desc:'Exploratrice (6 ans)',voix:1.25},
@@ -213,6 +220,7 @@ function cle(x,y,z){return x+','+y+','+z}
 function bruit(x,z,f,s){return Math.sin(x*f+s)*Math.cos(z*f*1.3+s*2)+Math.sin((x+z)*f*.6+s*3)*.5}
 function hex2rgb(h){const n=parseInt(h.slice(1),16);return[(n>>16)&255,(n>>8)&255,n&255]}
 function makeTexture(type){
+ if(!BLOCS[type])throw new Error('BLOC INCONNU: ['+type+']');
  const cv=document.createElement('canvas');cv.width=cv.height=32;const g=cv.getContext('2d');
  const[r,gg,b]=hex2rgb(BLOCS[type].c);g.fillStyle=BLOCS[type].c;g.fillRect(0,0,32,32);
  const rnd=(a,b2)=>a+Math.random()*(b2-a);
@@ -233,7 +241,7 @@ function biomeDe(x,z){
  if(h<-1.05)return 'ocean';if(t>1.25)return 'volcan';if(t<-1.15)return 'neige';
  if(h>1.0)return 'desert';if(t>0.55&&h>0.1)return 'marais';
  if(h>0.35)return 'foret';if(h<-0.5)return 'prairie';if(t>0.2)return 'montagne';return 'plaine'}
-function poserBloc(x,y,z,t){monde.set(cle(x,y,z),t)}
+function poserBloc(x,y,z,t){if(t===undefined||!BLOCS[t])return;monde.set(cle(x,y,z),t)}
 function colonne(x,z){for(let y=HMAX;y>=0;y--){const t=monde.get(cle(x,y,z));if(t&&t!=='eau')return y}return 5}
 // structures
 function maison(x,z,type){
@@ -266,7 +274,7 @@ function chateau(cx,cz){
 function chemin(x1,z1,x2,z2){
  let x=x1,z=z1;
  while(Math.abs(x-x2)>0||Math.abs(z-z2)>0){
-  poserBloc(x,colonne(x,z),'chemin');
+  poserBloc(x,colonne(x,z),z,'chemin');
   if(Math.abs(x-x2)>Math.abs(z-z2))x+=Math.sign(x2-x);else z+=Math.sign(z2-z)}}
 function genMonde(){
  monde.clear();
@@ -288,6 +296,13 @@ function genMonde(){
    for(let dx=-2;dx<=2;dx++)for(let dz=-2;dz<=2;dz++)for(let dy=ht;dy<=ht+2;dy++)
     if(Math.abs(dx)+Math.abs(dz)+Math.abs(dy-ht-1)<4&&!(dx===0&&dz===0&&dy===ht))poserBloc(x+dx,hh+dy,z+dz,'feuilles')}
   else if((bio==='plaine'||bio==='prairie')&&r>1.5)poserBloc(x,hh+1,z,'fleur')}
+ // terraformage : village et château toujours sur terre ferme
+ function aplanir(x0,z0,x1,z1,h){
+  for(let x=x0;x<=x1;x++)for(let z=z0;z<=z1;z++){
+   for(let y=h+1;y<=HMAX;y++)monde.delete(cle(x,y,z));
+   for(let y=0;y<=h;y++)poserBloc(x,y,z,y===h?'herbe':y>h-3?'terre':'pierre')}}
+ aplanir(74,64,110,96,9);   // vallée du village
+ aplanir(56,12,84,42,10);   // colline du château
  // village au centre-est, château au nord
  const vx=88,vz=76;
  SPAWNS.length=0;
@@ -611,7 +626,7 @@ document.getElementById('btnJouer').onclick=()=>{
   boucle()}
  S.inv={};S.poses={};S.totalPoses=0;S.gemmes=0;S.quete=0;S.pnjParles=0;S.parleA={};S.tuto=0;S.tutoFini=false;
  charger();
- J.x=TAILLE/2;J.z=TAILLE/2;J.y=colonne(Math.floor(J.x),Math.floor(J.z))+2;
+ J.x=82;J.z=70;J.y=colonne(82,70)+2;J.yaw=-2.5; // spawn à l'entrée du village, face aux maisons
  enJeu=true;majHUD();majObjectif();
  const p=PROFILS.find(x=>x.id===S.profil);
  setTimeout(()=>{
@@ -624,6 +639,9 @@ function boucle(t){requestAnimationFrame(boucle);
   if(!S.tutoFini&&S.tuto<2)verifQuete();
   renderer.render(scene,camera)}}
 speechSynthesis&&speechSynthesis.getVoices();
+// mode test auto (debug) : civilisation.html?test=1
+if(location.search.includes('test=1')){S.profil='papa';S.avatar='astronome';majBtn();
+ setTimeout(()=>{document.getElementById('btnJouer').disabled=false;document.getElementById('btnJouer').click()},200)}
 
 </script>
 </body>
