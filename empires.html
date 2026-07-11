@@ -130,11 +130,14 @@ function spriteTuile(base,fonce,motif,dense){
 function ombre(g,X,Y,w){g.fillStyle='rgba(0,0,0,.28)';g.beginPath();
  g.ellipse(X,Y,w,w*.42,0,0,7);g.fill()}
 function spriteArbre(){
- const c=document.createElement('canvas');c.width=32;c.height=44;const g=c.getContext('2d');
- px(g,14,30,4,12,'#5d4037');
- for(const[y,w,col]of[[22,22,'#1b5e20'],[14,18,'#2e7d32'],[6,12,'#43a047']])
-  px(g,16-w/2,y,w,9,col);
- px(g,12,4,4,4,'#66bb6a');return c}
+ const c=document.createElement('canvas');c.width=36;c.height=48;const g=c.getContext('2d');
+ pxo(g,15,34,5,13,'#5d4037');px(g,15,34,2,13,'#7a5647'); // tronc ombré
+ px(g,11,32,4,4,'#4e342e');px(g,20,33,4,3,'#4e342e'); // racines
+ const grappes=[[17,14,13,'#1e4d20'],[10,20,9,'#2a6330'],[25,19,9,'#2a6330'],
+  [13,10,8,'#3d8a40'],[22,9,8,'#3d8a40'],[17,16,7,'#57a65c'],[19,6,5,'#6cbf70']];
+ for(const[cx,cy,r,col]of grappes){g.fillStyle=col;g.beginPath();g.arc(cx,cy,r,0,7);g.fill()}
+ for(let i=0;i<14;i++)px(g,8+Math.random()*20,4+Math.random()*22,2,2,'#77c97c'); // reflets
+ return c}
 function spritePin(){ // pin sombre AoE2
  const c=document.createElement('canvas');c.width=28;c.height=48;const g=c.getContext('2d');
  px(g,12,38,4,10,'#4e342e');
@@ -152,11 +155,19 @@ function spritePalmier(){
 function spriteBuisson(){
  const c=document.createElement('canvas');c.width=20;c.height=14;const g=c.getContext('2d');
  px(g,2,6,16,8,'#2e6b30');px(g,5,2,10,7,'#3d8a40');px(g,8,4,3,3,'#c62828');return c}
-function spriteGazelle(){
- const c=document.createElement('canvas');c.width=24;c.height=20;const g=c.getContext('2d');
- px(g,4,8,14,6,'#c99b64');px(g,16,4,5,6,'#c99b64');px(g,19,1,2,4,'#8d6e4b');px(g,17,1,2,4,'#8d6e4b');
- px(g,5,14,2,5,'#a87f4f');px(g,10,14,2,5,'#a87f4f');px(g,15,14,2,5,'#a87f4f');
- px(g,3,9,3,3,'#f5efe0');return c}
+function spriteGazelle(frame){
+ const c=document.createElement('canvas');c.width=30;c.height=24;const g=c.getContext('2d');
+ const f=frame?2:0;
+ pxo(g,5,9,16,7,'#c99b64');px(g,5,13,16,3,'#f5efe0'); // corps + ventre blanc
+ pxo(g,19,4,5,7,'#c99b64'); // cou
+ pxo(g,21,2,6,4,'#b3874f'); // tête
+ px(g,26,3,2,2,'#2d2d2d'); // museau
+ px(g,22,0,1,3,'#6d4c2f');px(g,25,0,1,3,'#6d4c2f'); // cornes
+ px(g,20,1,2,2,'#a87f4f'); // oreille
+ px(g,3,8,3,3,'#f5efe0');px(g,2,9,2,4,'#b3874f'); // queue+croupe
+ pxo(g,6+f,16,2,6,'#a87f4f');pxo(g,11-f,16,2,6,'#a87f4f'); // pattes avant/arrière alternées
+ pxo(g,15+f,16,2,6,'#a87f4f');pxo(g,19-f,16,2,6,'#a87f4f');
+ return c}
 function spriteForum(){ // forum âge de pierre : défenses de mammouth + feu + peaux
  const c=document.createElement('canvas');c.width=96;c.height=74;const g=c.getContext('2d');
  g.strokeStyle='#e8e0cc';g.lineWidth=4;
@@ -197,13 +208,36 @@ function spriteBat(id,ageT){
  if(id==='merveille'){px(g,w/2-3,h-bh-28,6,16,'#ffd54f');px(g,w*.1,h-bh+4,w*.8,4,'#ffd54f')}
  if(id==='marche')px(g,w*.15,h-bh-6,w*.7,8,'#e8a33d');
  return c}
-function spriteUnite(type){
- const c=document.createElement('canvas');c.width=16;c.height=24;const g=c.getContext('2d');
- const peau='#ffcc80',hab=type==='colon'?'#1976d2':type==='colonne'?'#ab47bc':type==='soldat'?'#c62828':'#3e2723';
- px(g,5,2,6,5,peau);px(g,4,7,8,9,hab);px(g,3,8,2,6,peau);px(g,11,8,2,6,peau);
- px(g,5,16,3,6,'#4e342e');px(g,9,16,3,6,'#4e342e');
- if(type==='soldat'){px(g,13,4,2,12,'#b0bec5');px(g,2,6,2,8,'#8d6e63')}
- if(type==='barbare'){px(g,4,0,8,3,'#6d4c41');px(g,13,5,3,10,'#5d4037')}
+function pxo(g,x,y,w,h,c){px(g,x-1,y-1,w+2,h+2,'#00000055');px(g,x,y,w,h,c)}
+function spriteUnite(type,frame){
+ const c=document.createElement('canvas');c.width=24;c.height=36;const g=c.getContext('2d');
+ const peau='#eebd82',peauF='#d9a565';
+ const P={colon:{hab:'#2f6fb8',habF:'#245688',chev:'#5d4037',bas:'#8a6a45'},
+  colonne:{hab:'#9c4bb5',habF:'#7a3691',chev:'#3e2723',bas:'#6d4c41'},
+  soldat:{hab:'#b03030',habF:'#8a2424',chev:'#263238',bas:'#4e5a63'},
+  barbare:{hab:'#5d4037',habF:'#4a332c',chev:'#3e2723',bas:'#332722'}}[type];
+ const f=frame?1:0; // 2 frames de marche
+ // jambes
+ pxo(g,8-f*2,28,4,7,P.bas);pxo(g,13+f*2,28,4,7,P.bas);
+ px(g,8-f*2,34,5,2,'#2d2d2d');px(g,13+f*2,34,5,2,'#2d2d2d'); // chaussures
+ // torse (tunique ou robe)
+ if(type==='colonne'){pxo(g,6,17,12,12,P.hab);px(g,6,25,12,4,P.habF)} // robe
+ else{pxo(g,7,17,11,11,P.hab);px(g,7,24,11,3,P.habF)}
+ px(g,7,22,11,2,'#3a2a18'); // ceinture
+ // bras
+ pxo(g,4,18+f*2,3,8,peauF);pxo(g,18,20-f*2,3,8,peauF);
+ // tête + cheveux + visage
+ pxo(g,8,6,9,9,peau);px(g,8,5,9,4,P.chev);px(g,7,7,2,4,P.chev);
+ if(type==='colonne'){px(g,16,7,2,9,P.chev);px(g,7,7,2,9,P.chev)} // cheveux longs
+ px(g,10,10,1,2,'#3a2a18');px(g,14,10,1,2,'#3a2a18'); // yeux
+ // accessoires
+ if(type==='colon'){px(g,19,14,2,9,'#8d6e63');px(g,17,12,6,3,'#9aa7b0')} // hache
+ if(type==='colonne'){px(g,1,24,5,4,'#c9a227');px(g,2,23,3,1,'#8a6a3a')} // panier
+ if(type==='soldat'){px(g,8,3,9,4,'#78909c');px(g,11,0,3,4,'#c62828'); // casque+plumet
+  px(g,19,8,2,18,'#8d6e63');px(g,17,6,6,4,'#9aa7b0'); // lance
+  pxo(g,1,17,5,10,'#8a5a2a');px(g,3,21,1,2,'#c9a227')} // bouclier
+ if(type==='barbare'){px(g,7,3,11,4,'#6d4c41');px(g,9,12,7,4,'#5d4037'); // toque+barbe
+  px(g,19,16,3,10,'#6d4c41');px(g,18,14,5,4,'#4a332c')} // massue
  return c}
 const SPR={};
 function initSprites(){
@@ -215,12 +249,13 @@ function initSprites(){
  SPR.sable=spriteTuile('#d9c47e','#b3985a','#e8d89a');
  SPR.foret=spriteTuile('#3c7a30','#255220','#4a8f3c');
  SPR.arbre=spriteArbre();SPR.pin=spritePin();SPR.palmier=spritePalmier();
- SPR.buisson=spriteBuisson();SPR.gazelle=spriteGazelle();
+ SPR.buisson=spriteBuisson();
+ SPR.gazelle0=spriteGazelle(0);SPR.gazelle1=spriteGazelle(1);
  SPR.roche=spriteRocher(false);SPR.or=spriteRocher(true);
  SPR.feu=(()=>{const c=document.createElement('canvas');c.width=20;c.height=20;const g=c.getContext('2d');
   px(g,2,14,16,4,'#5d4037');px(g,6,6,8,9,'#ff7043');px(g,8,3,4,7,'#ffca28');return c})();
  for(const id in BATS)SPR['bat_'+id]=spriteBat(id);
- for(const t of['colon','colonne','soldat','barbare'])SPR[t]=spriteUnite(t)}
+ for(const t of['colon','colonne','soldat','barbare']){SPR[t+'0']=spriteUnite(t,0);SPR[t+'1']=spriteUnite(t,1)}}
 // ══ CARTE ══
 let carte=[];
 function bruit(x,z,f,s){return Math.sin(x*f+s)*Math.cos(z*f*1.3+s*2)+Math.sin((x+z)*f*.6+s*3)*.5}
@@ -437,8 +472,9 @@ function rendre(){
   if(c.t==='roche'){ombre(g,X,Y+18,15);g.drawImage(SPR.roche,X-20,Y-14,42,34)}
   if(c.t==='or'){ombre(g,X,Y+18,15);g.drawImage(SPR.or,X-20,Y-14,42,34)}}
  for(const a of animaux){const[ix,iy]=iso(a.x-.5,a.y-.5);
-  ombre(g,ix+cam.x,iy+cam.y+13,9);
-  g.drawImage(SPR.gazelle,ix+cam.x-15,iy+cam.y-16,30,25)}
+  ombre(g,ix+cam.x,iy+cam.y+13,10);
+  const tr=a.cible?Math.floor(performance.now()/140+a.x)%2:0;
+  g.drawImage(SPR['gazelle'+tr],ix+cam.x-17,iy+cam.y-15,34,27)}
  // bâtiments + unités triés par profondeur
  const objs=[];
  for(const b of batiments)objs.push({d:b.x+b.y+BATS[b.id].w,b});
@@ -453,9 +489,9 @@ function rendre(){
    if(!b.fini){px(g,X-24,Y+6,48,6,'#00000088');px(g,X-23,Y+7,46*b.prog/100,4,'#3dba6f')}
    if(S.sel===b){g.strokeStyle='#e8a33d';g.lineWidth=2;g.strokeRect(X-sp.width/2,Y-sp.height+TH/2,sp.width,sp.height)}}
   else{const u=o.u,[ix,iy]=iso(u.x-.5,u.y-.5),X=ix+cam.x,Y=iy+cam.y;
-   const bob=Math.sin(u.t*6)*(u.cible?2:0);
+   const marche=u.cible?Math.floor(u.t*7)%2:0;
    ombre(g,X,Y+9,9);
-   g.drawImage(SPR[u.type],X-11,Y-26+bob,22,33);
+   g.drawImage(SPR[u.type+marche],X-12,Y-28,24,36);
    if(u.sac>0)px(g,X-2,Y-24+bob,5,4,u.sacType==='bois'?'#8d6e63':u.sacType==='or'?'#ffd54f':'#90a4ae');
    if(S.sel===u){g.strokeStyle='#e8a33d';g.lineWidth=2;g.beginPath();g.ellipse(X,Y+4,12,6,0,0,7);g.stroke()}}}
  // feu de camp au centre de départ
