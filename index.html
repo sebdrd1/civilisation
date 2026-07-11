@@ -9,31 +9,31 @@
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none}
 body{background:var(--fond);color:#fff;overflow:hidden;width:100vw;height:100vh}
 canvas{display:block}
-.ecran{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,#0d1526,#1a2a4a);z-index:50;overflow-y:auto;padding:16px}
+.ecran{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;background:linear-gradient(180deg,#0d1526,#1a2a4a);z-index:50;overflow-y:auto;padding:20px 16px}
 .hidden{display:none!important}
-h1{font-size:clamp(26px,6vw,44px);color:var(--or);text-shadow:0 3px 10px #000}
-h2{color:var(--or);margin:10px 0}
-.sous{color:#9fb3d9;margin:6px 0 18px;text-align:center}
-.cartes{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;max-width:900px}
-.carte{background:#16213e;border:3px solid #2a3f6e;border-radius:16px;padding:18px 22px;text-align:center;cursor:pointer;min-width:150px;transition:.15s}
-.carte:hover,.carte.sel{border-color:var(--or);transform:scale(1.05)}
-.carte .emoji{font-size:44px}
-.carte .nom{font-weight:700;margin-top:8px}
-.carte .desc{font-size:12px;color:#9fb3d9;margin-top:4px}
-.btn{background:var(--or);color:#1a1a2e;font-weight:800;font-size:18px;border:none;border-radius:12px;padding:14px 34px;cursor:pointer;margin-top:20px}
+h1{font-size:clamp(24px,6vw,42px);color:var(--or);text-shadow:0 3px 10px #000}
+h2{color:var(--or);margin:12px 0 6px;font-size:18px}
+.sous{color:#9fb3d9;margin:4px 0 10px;text-align:center;font-size:14px}
+.cartes{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:900px}
+.carte{background:#16213e;border:3px solid #2a3f6e;border-radius:14px;padding:12px 16px;text-align:center;cursor:pointer;min-width:130px;transition:.15s}
+.carte:hover,.carte.sel{border-color:var(--or);transform:scale(1.04)}
+.carte .emoji{font-size:36px}
+.carte .nom{font-weight:700;margin-top:4px;font-size:14px}
+.carte .desc{font-size:11px;color:#9fb3d9}
+.btn{background:var(--or);color:#1a1a2e;font-weight:800;font-size:18px;border:none;border-radius:12px;padding:14px 34px;cursor:pointer;margin-top:16px}
 .btn:disabled{opacity:.4}
-.btn.sec{background:#2a3f6e;color:#fff;font-size:14px;padding:10px 20px}
-.rang{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:8px 0}
-.pill{background:#16213e;border:2px solid #2a3f6e;border-radius:20px;padding:8px 14px;cursor:pointer;font-size:14px}
+.btn.sec{background:#2a3f6e;color:#fff;font-size:14px;padding:10px 20px;margin:8px 4px 0}
+.rang{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:4px 0}
+.pill{background:#16213e;border:2px solid #2a3f6e;border-radius:20px;padding:7px 13px;cursor:pointer;font-size:13px}
 .pill.sel{border-color:var(--vert);background:#1e3a2f}
 #hud{position:fixed;inset:0;pointer-events:none;z-index:10}
 #objectif{position:fixed;top:8px;left:50%;transform:translateX(-50%);background:rgba(13,21,38,.85);border:2px solid var(--or);border-radius:12px;padding:8px 16px;font-size:15px;max-width:92vw;text-align:center}
 #stats{position:fixed;top:8px;left:8px;background:rgba(13,21,38,.75);border-radius:10px;padding:6px 10px;font-size:13px}
 #hotbar{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px;pointer-events:auto}
-.slot{width:52px;height:52px;background:rgba(13,21,38,.8);border:2px solid #2a3f6e;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:26px;position:relative;cursor:pointer}
+.slot{width:50px;height:50px;background:rgba(13,21,38,.8);border:2px solid #2a3f6e;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;position:relative;cursor:pointer}
 .slot.sel{border-color:var(--or);box-shadow:0 0 10px var(--or)}
 .slot .n{position:absolute;bottom:1px;right:4px;font-size:11px;font-weight:700}
-.bulle{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);background:rgba(22,33,62,.96);border:3px solid var(--or);border-radius:16px;padding:14px 18px;max-width:min(560px,92vw);z-index:30;pointer-events:auto}
+.bulle{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);background:rgba(22,33,62,.96);border:3px solid var(--or);border-radius:16px;padding:14px 18px;max-width:min(580px,92vw);z-index:30;pointer-events:auto}
 .bulle .qui{color:var(--or);font-weight:800;margin-bottom:6px}
 .bulle .txt{font-size:16px;line-height:1.45}
 .bulle .choix{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
@@ -44,55 +44,60 @@ h2{color:var(--or);margin:10px 0}
 .stick{position:absolute;left:35px;top:35px;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.35)}
 #btnsTactiles{position:fixed;right:14px;bottom:230px;display:none;flex-direction:column;gap:10px;z-index:20}
 .btnT{width:54px;height:54px;border-radius:50%;background:rgba(22,33,62,.85);border:2px solid #3d5aa0;color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center}
-#barreHaut{position:fixed;top:8px;right:8px;display:flex;gap:8px;pointer-events:auto;z-index:15}
-.btnH{background:rgba(13,21,38,.8);border:2px solid #2a3f6e;border-radius:10px;color:#fff;padding:8px 12px;font-size:16px;cursor:pointer}
+#barreHaut{position:fixed;top:8px;right:8px;display:flex;gap:6px;pointer-events:auto;z-index:15}
+.btnH{background:rgba(13,21,38,.8);border:2px solid #2a3f6e;border-radius:10px;color:#fff;padding:8px 11px;font-size:16px;cursor:pointer}
 .btnH.on{border-color:var(--vert);background:#1e3a2f}
 #panneau{position:fixed;inset:0;background:rgba(6,10,20,.92);z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
-.grille{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;max-width:760px;width:100%}
+.grille{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;max-width:780px;width:100%}
 .item{background:#16213e;border:2px solid #2a3f6e;border-radius:12px;padding:12px;text-align:center;cursor:pointer;font-size:14px}
 .item:hover{border-color:var(--or)}
-.item .emoji{font-size:30px}
+.item .emoji{font-size:28px}
 .item .bientot{color:#e94560;font-size:11px;font-weight:700}
+.guide{max-width:560px;width:100%;background:#16213e;border-radius:14px;padding:16px;font-size:15px;line-height:1.9}
+.guide b{color:var(--or)}
 #toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:var(--vert);color:#08120c;font-weight:800;border-radius:12px;padding:10px 20px;z-index:60;transition:.3s;opacity:0}
 #viseur{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);font-size:20px;opacity:.7}
 .confetti{position:fixed;font-size:26px;z-index:70;pointer-events:none;animation:tomber 2.2s ease-in forwards}
 @keyframes tomber{0%{transform:translateY(-30px) rotate(0)}100%{transform:translateY(105vh) rotate(720deg);opacity:.2}}
+#nomPNJ{position:fixed;left:50%;top:56%;transform:translateX(-50%);background:rgba(13,21,38,.8);border-radius:8px;padding:4px 12px;font-size:14px;color:var(--or);display:none}
 </style>
 </head>
 <body>
 
-<!-- ÉCRAN TITRE -->
 <div id="ecranTitre" class="ecran">
   <h1>🏛️ CIVILISATION</h1>
-  <p class="sous">Le jeu de la famille Dardeau — de la Préhistoire au Futur<br>Age of Empires × Il était une fois... l'Homme</p>
-  <h2>Qui joue ?</h2>
-  <div class="cartes" id="profils"></div>
-  <h2>Ton héros</h2>
-  <div class="rang" id="avatars"></div>
-  <h2>Difficulté</h2>
-  <div class="rang" id="difficultes"></div>
+  <p class="sous">Le jeu de la famille Dardeau — de la Préhistoire au Futur<br>Age of Empires × Il était une fois... l'Homme & la Vie</p>
+  <h2>Qui joue ?</h2><div class="cartes" id="profils"></div>
+  <h2>Ton héros</h2><div class="rang" id="avatars"></div>
+  <h2>Difficulté</h2><div class="rang" id="difficultes"></div>
+  <h2>Commandes PC</h2>
+  <div class="rang" id="presets">
+    <div class="pill sel" data-p="adapte">✋ Adaptées (espace=avancer · clic droit=sauter)</div>
+    <div class="pill" data-p="classique">🎮 Classiques (espace=sauter · clic droit=poser)</div>
+  </div>
   <button class="btn" id="btnJouer" disabled>▶️ JOUER</button>
-  <button class="btn sec" id="btnModes">🧩 Modes de jeu</button>
+  <div><button class="btn sec" id="btnModes">🧩 Modes</button>
+  <button class="btn sec" onclick="ouvrirGuide()">❓ Touches</button></div>
 </div>
 
-<!-- PANNEAU MODES / CRAFT / INVENTAIRE -->
 <div id="panneau" class="hidden">
   <h2 id="panneauTitre">Modes</h2>
   <div class="grille" id="panneauGrille"></div>
   <button class="btn sec" onclick="fermerPanneau()">✖ Fermer</button>
 </div>
 
-<!-- JEU -->
 <div id="hud" class="hidden">
   <div id="viseur">＋</div>
   <div id="objectif">🎯 Bienvenue !</div>
   <div id="stats">💎 <span id="gemmes">0</span> · 🕰️ <span id="ere">Préhistoire</span></div>
+  <div id="nomPNJ"></div>
   <div id="barreHaut">
-    <button class="btnH" id="btnMicro" title="Commandes vocales">🎤</button>
-    <button class="btnH" onclick="ouvrirCraft()" title="Fabriquer">🛠️</button>
-    <button class="btnH" onclick="ouvrirInventaire()" title="Inventaire">🎒</button>
-    <button class="btnH" onclick="ouvrirModes()" title="Modes">🧩</button>
-    <button class="btnH" onclick="menuTitre()" title="Menu">🏠</button>
+    <button class="btnH" id="btnMicro" title="Vocal">🎤</button>
+    <button class="btnH" onclick="ouvrirCraft()">🛠️</button>
+    <button class="btnH" onclick="ouvrirInventaire()">🎒</button>
+    <button class="btnH" onclick="ouvrirModes()">🧩</button>
+    <button class="btnH" onclick="ouvrirGuide()">❓</button>
+    <button class="btnH" onclick="menuTitre()">🏠</button>
   </div>
   <div id="hotbar"></div>
 </div>
@@ -102,6 +107,7 @@ h2{color:var(--or);margin:10px 0}
   <button class="btnT" id="btnSaut">⬆️</button>
   <button class="btnT" id="btnCasser">⛏️</button>
   <button class="btnT" id="btnPoser">🧱</button>
+  <button class="btnT" onclick="interagir()">💬</button>
 </div>
 <div id="bulle" class="bulle hidden"></div>
 <div id="toast"></div>
@@ -113,7 +119,7 @@ const PROFILS=[
  {id:'leana',emoji:'🌸',nom:'Léana',desc:'Exploratrice (6 ans)',voix:1.25},
  {id:'mathias',emoji:'🔨',nom:'Mathias',desc:'Bâtisseur (10 ans)',voix:1.1},
  {id:'papa',emoji:'👑',nom:'Papa',desc:'Le Sage',voix:1.0},
- {id:'invite',emoji:'🙂',nom:'Invité',desc:'Un ami de la famille',voix:1.1}];
+ {id:'invite',emoji:'🙂',nom:'Invité',desc:'Ami de la famille',voix:1.1}];
 const AVATARS=[
  {id:'pharaonne',emoji:'👸',nom:'Pharaonne',c:0xf4c542},{id:'gladiateur',emoji:'🛡️',nom:'Gladiateur',c:0xb03a2e},
  {id:'samourai',emoji:'⚔️',nom:'Samouraï',c:0x2e4053},{id:'viking',emoji:'🪓',nom:'Viking',c:0x7d6608},
@@ -121,72 +127,180 @@ const AVATARS=[
  {id:'superheros',emoji:'🦸',nom:'Super-Héros',c:0xe74c3c},{id:'princesse',emoji:'🏹',nom:'Guerrière',c:0xe94560}];
 const DIFFICULTES=['baby','novice','normal','medium','pro','expert','hard','hardcore'];
 const MODES=[
- {id:'histoire',emoji:'📜',nom:'Histoire & Quêtes',actif:true,desc:'Le Maestro raconte les âges'},
- {id:'construction',emoji:'🏗️',nom:'Construction libre',actif:true,desc:'Blocs illimités'},
- {id:'survie',emoji:'🌲',nom:'Survie',actif:true,desc:'Récolte et fabrique'},
+ {id:'histoire',emoji:'📜',nom:'Histoire & Quêtes',actif:true},{id:'construction',emoji:'🏗️',nom:'Construction libre',actif:true},
+ {id:'survie',emoji:'🌲',nom:'Survie',actif:true},
  {id:'archeologie',emoji:'🏺',nom:'Archéologie',actif:false},{id:'astronomie',emoji:'🔭',nom:'Astronomie',actif:false},
  {id:'chimie',emoji:'⚗️',nom:'Chimie',actif:false},{id:'maths',emoji:'🔢',nom:'Mathématiques',actif:false},
  {id:'mythologie',emoji:'🔱',nom:'Mythologie',actif:false},{id:'guerre',emoji:'⚔️',nom:'Guerre & Stratégie',actif:false},
  {id:'colonie',emoji:'🏘️',nom:'Ma Colonie',actif:false},{id:'technologie',emoji:'⚙️',nom:'Technologie',actif:false},
- {id:'musique',emoji:'🎸',nom:'Musique & Chant',actif:false},{id:'inventions',emoji:'💡',nom:'Inventions',actif:false}];
+ {id:'vie',emoji:'🫀',nom:'Il était une fois la Vie',actif:false},{id:'musique',emoji:'🎸',nom:'Musique & Chant',actif:false}];
 const BLOCS={
- herbe:{c:0x4caf50,e:'🟩'},terre:{c:0x795548,e:'🟫'},pierre:{c:0x9e9e9e,e:'⬜'},sable:{c:0xf9e79f,e:'🟨'},
- neige:{c:0xecf0f1,e:'⬜'},eau:{c:0x2196f3,e:'🟦',t:true},bois:{c:0x6d4c41,e:'🟫'},feuilles:{c:0x2e7d32,e:'🟩',t:true},
- planches:{c:0xc19a6b,e:'🟧'},torche:{c:0xffb300,e:'🕯️'},feu:{c:0xff5722,e:'🔥'},laine_rouge:{c:0xe53935,e:'🟥'},
- laine_bleue:{c:0x1e88e5,e:'🟦'},laine_jaune:{c:0xfdd835,e:'🟨'},roche_volcan:{c:0x37474f,e:'⬛'},fleur:{c:0xff80ab,e:'🌸'}};
+ herbe:{c:'#4caf50',e:'🟩'},terre:{c:'#795548',e:'🟫'},pierre:{c:'#9e9e9e',e:'⬜'},sable:{c:'#f0e08a',e:'🟨'},
+ neige:{c:'#eef4f6',e:'⬜'},eau:{c:'#2196f3',e:'🟦',t:true},bois:{c:'#6d4c41',e:'🪵'},feuilles:{c:'#2e7d32',e:'🍃',t:true},
+ planches:{c:'#c19a6b',e:'🟧'},torche:{c:'#ffb300',e:'🕯️'},feu:{c:'#ff5722',e:'🔥'},ble:{c:'#e9c94a',e:'🌾'},
+ laine_rouge:{c:'#e53935',e:'🟥'},laine_bleue:{c:'#1e88e5',e:'🟦'},laine_jaune:{c:'#fdd835',e:'🟨'},
+ roche_volcan:{c:'#37474f',e:'⬛'},fleur:{c:'#ff80ab',e:'🌸'},toit:{c:'#8d3b2f',e:'🟥'},chemin:{c:'#b8a888',e:'⬜'},
+ mur_chateau:{c:'#7d8a97',e:'🏰'},or:{c:'#ffd54f',e:'✨'}};
 const RECETTES=[
  {res:'planches',n:4,emoji:'🟧',nom:'Planches',besoin:{bois:1}},
  {res:'torche',n:2,emoji:'🕯️',nom:'Torches',besoin:{bois:1,pierre:1}},
  {res:'feu',n:1,emoji:'🔥',nom:'Feu de camp',besoin:{bois:3,pierre:2}},
+ {res:'chemin',n:4,emoji:'⬜',nom:'Chemin',besoin:{pierre:2,sable:1}},
+ {res:'toit',n:4,emoji:'🟥',nom:'Tuiles de toit',besoin:{terre:2,bois:1}},
  {res:'laine_rouge',n:2,emoji:'🟥',nom:'Peinture rouge',besoin:{fleur:1}},
  {res:'laine_jaune',n:2,emoji:'🟨',nom:'Peinture jaune',besoin:{fleur:1}},
- {res:'laine_bleue',n:2,emoji:'🟦',nom:'Peinture bleue',besoin:{fleur:1,eau:0}}];
+ {res:'laine_bleue',n:2,emoji:'🟦',nom:'Peinture bleue',besoin:{fleur:1}}];
+// PNJ éducatifs — contenu tiré des dossiers Civilisation & Il était une fois la Vie
+const TYPES_PNJ={
+ villageois:{nom:'Pierrot le fermier',cc:0x8d6e63,ch:0xffcc80,dial:[
+  'Bienvenue au village ! Ici on cultive le blé, comme au Néolithique il y a dix mille ans — la plus grande invention des humains : l\'agriculture !',
+  'Avant l\'agriculture, les humains se déplaçaient sans cesse pour chasser. Grâce aux champs, ils ont pu construire des villages !',
+  'Tu vois mes champs de blé ? Avec le blé on fait la farine, et avec la farine... le pain ! Miam !']},
+ villageoise:{nom:'Maëlle la potière',cc:0xba68c8,ch:0xffcc80,dial:[
+  'Je fabrique des poteries avec l\'argile, comme les premiers artisans ! La poterie servait à garder l\'eau et les graines.',
+  'Sais-tu que l\'écriture a été inventée pour compter les sacs de grain ? Les premiers mots écrits étaient des listes de courses !',
+  'Les femmes du Néolithique tissaient déjà des vêtements en laine. Regarde tes blocs de laine colorée !']},
+ guerrier:{nom:'Arthur le garde',cc:0x546e7a,ch:0xffcc80,dial:[
+  'Halte ! ... Ah, c\'est toi ! Je protège le village, comme les légionnaires romains protégeaient leur camp.',
+  'Les gladiateurs combattaient dans le Colisée à Rome, devant cinquante mille spectateurs ! Plus grand que nos stades !',
+  'Un bon guerrier protège les autres. Les chevaliers du Moyen Âge avaient un code d\'honneur : la chevalerie !']},
+ roi:{nom:'Roi Léon',cc:0x6a1b9a,ch:0xffcc80,or:true,dial:[
+  'Bienvenue dans mon château, jeune héros ! Les châteaux forts protégeaient tout le village en cas d\'attaque.',
+  'Mon château a des tours pour voir loin, des remparts épais... et un donjon ! Comme au Moyen Âge.',
+  'Un bon roi écoute son peuple. Sais-tu qu\'à Athènes, en Grèce antique, le peuple votait déjà ? On appelle ça la démocratie !']},
+ astronome:{nom:'Luna l\'astronome',cc:0x1565c0,ch:0xffcc80,dial:[
+  'Regarde le ciel ! Le Soleil est une étoile, une boule de feu géante à cent cinquante millions de kilomètres !',
+  'Les Mayas étaient de grands astronomes : leur calendrier était presque aussi précis que le nôtre !',
+  'La nuit, on voit des milliers d\'étoiles. Certaines sont si loin que leur lumière voyage depuis des millions d\'années !']},
+ professeur:{nom:'Professeur Vita',cc:0xd32f2f,ch:0xffcc80,dial:[
+  'Il était une fois... la Vie ! Ton cœur bat cent mille fois par jour pour envoyer le sang partout dans ton corps !',
+  'Dans ton sang, les globules rouges transportent l\'oxygène, et les globules blancs combattent les microbes, comme de petits soldats !',
+  'Ton cerveau contient des milliards de neurones qui s\'envoient des messages électriques. C\'est lui qui te permet de jouer !']}};
 const QUETES={
  leana:[
-  {txt:'🌼 Trouve 3 fleurs roses (casse-les !)',test:s=>(s.inv.fleur||0)>=3,dit:'Trouve trois jolies fleurs ! Les premiers humains cherchaient des plantes pour se soigner.'},
-  {txt:'🔥 Fabrique un feu de camp (bouton 🛠️)',test:s=>(s.inv.feu||0)>=1,dit:'Fabrique un feu de camp ! Le feu réchauffe et éclaire la nuit.'},
-  {txt:'🧱 Pose ton feu de camp par terre',test:s=>s.poses.feu>=1,dit:'Pose ton feu par terre pour réchauffer la famille !'}],
+  {txt:'🌼 Trouve 3 fleurs roses',test:s=>(s.inv.fleur||0)>=3,dit:'Trouve trois jolies fleurs ! Les premiers humains cherchaient des plantes pour se soigner.'},
+  {txt:'💬 Parle à un habitant du village (approche-toi et clique)',test:s=>s.pnjParles>=1,dit:'Va au village et parle à quelqu\'un ! Suis le chemin de pierre.'},
+  {txt:'🔥 Fabrique un feu de camp (bouton 🛠️)',test:s=>(s.inv.feu||0)>=1,dit:'Fabrique un feu de camp ! Le feu réchauffe et éclaire.'},
+  {txt:'🧱 Pose ton feu de camp',test:s=>(s.poses.feu||0)>=1,dit:'Pose ton feu par terre pour réchauffer tout le monde !'}],
  mathias:[
-  {txt:'⛏️ Récolte 10 pierres',test:s=>(s.inv.pierre||0)>=10,dit:'Récolte dix pierres ! Les hommes préhistoriques taillaient la pierre pour faire des outils.'},
-  {txt:'🏠 Construis un abri : pose 15 blocs',test:s=>s.totalPoses>=15,dit:'Construis un abri avec quinze blocs ! Comme les premières huttes.'},
-  {txt:'🎨 Peinture rupestre : pose 5 laines colorées',test:s=>(s.poses.laine_rouge||0)+(s.poses.laine_jaune||0)+(s.poses.laine_bleue||0)>=5,dit:'Fais une peinture sur ton mur avec des blocs colorés, comme la grotte de Lascaux il y a dix-neuf mille ans !'}],
+  {txt:'⛏️ Récolte 10 pierres',test:s=>(s.inv.pierre||0)>=10,dit:'Récolte dix pierres ! Les hommes préhistoriques taillaient la pierre pour leurs outils.'},
+  {txt:'💬 Parle à Luna l\'astronome (au village)',test:s=>s.parleA.astronome,dit:'Trouve Luna l\'astronome au village — elle connaît les secrets du ciel, tu vas adorer !'},
+  {txt:'🏠 Construis un abri : pose 15 blocs',test:s=>s.totalPoses>=15,dit:'Construis un abri avec quinze blocs, comme les premières huttes !'},
+  {txt:'🎨 Peinture rupestre : pose 5 laines colorées',test:s=>(s.poses.laine_rouge||0)+(s.poses.laine_jaune||0)+(s.poses.laine_bleue||0)>=5,dit:'Fais une peinture murale avec des blocs colorés, comme à Lascaux il y a dix-neuf mille ans !'}],
  papa:[
-  {txt:'🔥 Feu de camp familial posé',test:s=>s.poses.feu>=1,dit:'Bâtis le camp familial, Sage Sébastien.'},
+  {txt:'👑 Rends visite au Roi Léon (château au nord)',test:s=>s.parleA.roi,dit:'Le Roi Léon t\'attend dans son château, au nord de la carte, Sage Sébastien.'},
+  {txt:'🔥 Feu de camp familial posé',test:s=>(s.poses.feu||0)>=1,dit:'Bâtis le camp familial.'},
   {txt:'🏗️ Grand abri : pose 30 blocs',test:s=>s.totalPoses>=30,dit:'Un grand abri pour toute la famille : trente blocs.'},
-  {txt:'🕯️ Éclaire le camp : pose 4 torches',test:s=>(s.poses.torche||0)>=4,dit:'Éclaire le camp avec quatre torches.'}],
+  {txt:'🕯️ Éclaire le camp : 4 torches posées',test:s=>(s.poses.torche||0)>=4,dit:'Éclaire le camp avec quatre torches.'}],
  invite:[
   {txt:'🌼 Trouve 2 fleurs',test:s=>(s.inv.fleur||0)>=2,dit:'Trouve deux fleurs pour commencer !'},
-  {txt:'🧱 Pose 10 blocs',test:s=>s.totalPoses>=10,dit:'Construis quelque chose avec dix blocs !'},
-  {txt:'⛏️ Récolte 5 bois',test:s=>(s.inv.bois||0)>=5,dit:'Coupe cinq morceaux de bois !'}]};
-const S={profil:null,avatar:null,diff:'normal',inv:{},poses:{},totalPoses:0,gemmes:0,quete:0,mode:'histoire',micro:false};
+  {txt:'💬 Parle à un habitant',test:s=>s.pnjParles>=1,dit:'Va discuter avec un habitant du village !'},
+  {txt:'🧱 Pose 10 blocs',test:s=>s.totalPoses>=10,dit:'Construis quelque chose avec dix blocs !'}]};
+const TUTO=[
+ {txt:'👋 Bouge avec Z Q S D (ou joystick gauche)',dit:'Bienvenue ! Pour bouger, utilise les touches Z Q S D, ou le joystick gauche sur tablette. Avance un peu !',test:()=>tutoBouge>1.5},
+ {txt:'👀 Regarde autour (souris ou joystick droit)',dit:'Bravo ! Maintenant regarde autour de toi en bougeant la souris, ou le joystick droit.',test:()=>tutoRegarde>1.2},
+ {txt:'⛏️ Casse un bloc : clic gauche (ou bouton pioche)',dit:'Super ! Vise un bloc et casse-le avec le clic gauche, ou le bouton pioche.',test:s=>Object.keys(S.inv).length>0},
+ {txt:'🧱 Pose un bloc : touche F (ou bouton brique)',dit:'Tu récoltes ! Maintenant pose un bloc avec la touche F, ou le bouton brique.',test:s=>S.totalPoses>0},
+ {txt:'🎉 Parfait ! Le Maestro va te donner ta première mission',dit:'Tu sais tout faire ! Écoute bien le Maestro maintenant...',test:()=>true}];
+const S={profil:null,avatar:null,diff:'normal',preset:'adapte',inv:{},poses:{},totalPoses:0,gemmes:0,quete:0,mode:'histoire',micro:false,pnjParles:0,parleA:{},tuto:0,tutoFini:false};
+let tutoBouge=0,tutoRegarde=0;
 
-// ══════════ MOTEUR VOXEL ══════════
-const TAILLE=72,HMAX=24;
-let scene,camera,renderer,monde=new Map(),meshes={},soleil;
+// ══════════ MOTEUR VOXEL (textures, biomes, structures) ══════════
+const TAILLE=144,HMAX=30;
+let scene,camera,renderer,monde=new Map(),meshes={},soleil,ambiance,nuages=[],tJour=0;
+const TEXTURES={};
 function cle(x,y,z){return x+','+y+','+z}
 function bruit(x,z,f,s){return Math.sin(x*f+s)*Math.cos(z*f*1.3+s*2)+Math.sin((x+z)*f*.6+s*3)*.5}
+function hex2rgb(h){const n=parseInt(h.slice(1),16);return[(n>>16)&255,(n>>8)&255,n&255]}
+function makeTexture(type){
+ const cv=document.createElement('canvas');cv.width=cv.height=32;const g=cv.getContext('2d');
+ const[r,gg,b]=hex2rgb(BLOCS[type].c);g.fillStyle=BLOCS[type].c;g.fillRect(0,0,32,32);
+ const rnd=(a,b2)=>a+Math.random()*(b2-a);
+ for(let i=0;i<160;i++){const v=rnd(-26,26);
+  g.fillStyle=`rgb(${Math.max(0,Math.min(255,r+v))},${Math.max(0,Math.min(255,gg+v))},${Math.max(0,Math.min(255,b+v))})`;
+  g.fillRect(Math.floor(rnd(0,32)),Math.floor(rnd(0,32)),2,2)}
+ if(type==='bois'){g.fillStyle='rgba(0,0,0,.25)';for(let x=3;x<32;x+=7)g.fillRect(x,0,2,32)}
+ if(type==='planches'){g.fillStyle='rgba(0,0,0,.22)';for(let y=7;y<32;y+=8)g.fillRect(0,y,32,1)}
+ if(type==='pierre'||type==='mur_chateau'){g.strokeStyle='rgba(0,0,0,.3)';g.strokeRect(1,1,15,15);g.strokeRect(16,16,15,15)}
+ if(type==='eau'){g.fillStyle='rgba(255,255,255,.25)';for(let y=4;y<32;y+=9)g.fillRect(0,y,32,2)}
+ if(type==='herbe'){g.fillStyle='rgba(20,90,20,.4)';for(let i=0;i<25;i++)g.fillRect(Math.floor(rnd(0,32)),Math.floor(rnd(0,32)),1,3)}
+ if(type==='ble'){g.fillStyle='#b8860b';for(let x=2;x<32;x+=5)g.fillRect(x,6,1,24)}
+ if(type==='fleur'){g.fillStyle='#fff';g.fillRect(13,13,6,6)}
+ if(type==='or'){g.fillStyle='#fff8dc';g.fillRect(8,8,4,4);g.fillRect(20,18,4,4)}
+ const tx=new THREE.CanvasTexture(cv);tx.magFilter=THREE.NearestFilter;tx.minFilter=THREE.NearestFilter;return tx}
 function biomeDe(x,z){
- const b=bruit(x,z,.02,7);const t=bruit(x,z,.015,42);
- if(b<-0.9)return 'ocean';if(t>1.1)return 'volcan';if(t<-1.0)return 'neige';
- if(b>0.9)return 'desert';if(b>0.2)return 'foret';return 'plaine'}
+ const t=bruit(x,z,.014,42),h=bruit(x,z,.02,7);
+ if(h<-1.05)return 'ocean';if(t>1.25)return 'volcan';if(t<-1.15)return 'neige';
+ if(h>1.0)return 'desert';if(t>0.55&&h>0.1)return 'marais';
+ if(h>0.35)return 'foret';if(h<-0.5)return 'prairie';if(t>0.2)return 'montagne';return 'plaine'}
+function poserBloc(x,y,z,t){monde.set(cle(x,y,z),t)}
+function colonne(x,z){for(let y=HMAX;y>=0;y--){const t=monde.get(cle(x,y,z));if(t&&t!=='eau')return y}return 5}
+// structures
+function maison(x,z,type){
+ const h=colonne(x,z);
+ for(let dx=0;dx<5;dx++)for(let dz=0;dz<5;dz++)for(let dy=1;dy<=3;dy++){
+  const bord=dx===0||dx===4||dz===0||dz===4;
+  if(bord&&!(dz===0&&dx===2&&dy<=2))poserBloc(x+dx,h+dy,z+dz,dy===1&&(dx===0||dx===4)?'bois':'planches')}
+ for(let dx=-1;dx<6;dx++)for(let dz=-1;dz<6;dz++)poserBloc(x+dx,h+4,z+dz,'toit');
+ poserBloc(x+2,h+5,z+2,'toit');poserBloc(x+1,h+1,z-1,'torche');
+ return[x+2,h+1,z+2]}
+function champ(x,z){const h=colonne(x,z);
+ for(let dx=0;dx<6;dx++)for(let dz=0;dz<4;dz++){poserBloc(x+dx,h,z+dz,'terre');poserBloc(x+dx,h+1,z+dz,'ble')}}
+function chateau(cx,cz){
+ const h=colonne(cx,cz),T=15;
+ for(let dx=0;dx<T;dx++)for(let dz=0;dz<T;dz++){
+  const bord=dx===0||dx===T-1||dz===0||dz===T-1;
+  poserBloc(cx+dx,h,cz+dz,'chemin');
+  if(bord&&!(dz===0&&dx>=6&&dx<=8))for(let dy=1;dy<=4;dy++)poserBloc(cx+dx,h+dy,cz+dz,'mur_chateau');
+  if(bord&&(dx+dz)%2===0)poserBloc(cx+dx,h+5,cz+dz,'mur_chateau')}
+ for(const[tx,tz]of[[0,0],[T-1,0],[0,T-1],[T-1,T-1]])
+  for(let dy=1;dy<=7;dy++){poserBloc(cx+tx,h+dy,cz+tz,'mur_chateau');
+   if(dy===7){poserBloc(cx+tx+1,h+dy,cz+tz,'mur_chateau');poserBloc(cx+tx-1,h+dy,cz+tz,'mur_chateau')}}
+ // donjon central + trône
+ for(let dx=5;dx<10;dx++)for(let dz=8;dz<13;dz++)for(let dy=1;dy<=5;dy++){
+  const bord=dx===5||dx===9||dz===8||dz===12;
+  if(bord&&!(dz===8&&dx===7&&dy<=2))poserBloc(cx+dx,h+dy,cz+dz,'pierre')}
+ poserBloc(cx+7,h+1,cz+11,'or');poserBloc(cx+7,h+2,cz+11,'laine_rouge');
+ poserBloc(cx+6,h+1,cz-1,'torche');poserBloc(cx+8,h+1,cz-1,'torche');
+ return[cx+7,h+1,cz+10]}
+function chemin(x1,z1,x2,z2){
+ let x=x1,z=z1;
+ while(Math.abs(x-x2)>0||Math.abs(z-z2)>0){
+  poserBloc(x,colonne(x,z),'chemin');
+  if(Math.abs(x-x2)>Math.abs(z-z2))x+=Math.sign(x2-x);else z+=Math.sign(z2-z)}}
 function genMonde(){
  monde.clear();
  for(let x=0;x<TAILLE;x++)for(let z=0;z<TAILLE;z++){
   const bio=biomeDe(x,z);
-  let h=Math.floor(8+bruit(x,z,.06,3)*2.2+bruit(x,z,.15,9)*1.2);
-  if(bio==='ocean')h=5;if(bio==='volcan')h+=Math.floor(Math.max(0,bruit(x,z,.05,42))*4);
-  for(let y=0;y<=h;y++){
+  let hh=Math.floor(8+bruit(x,z,.05,3)*2.4+bruit(x,z,.13,9)*1.4);
+  if(bio==='ocean')hh=5;if(bio==='montagne')hh+=Math.floor(Math.abs(bruit(x,z,.04,17))*5)+2;
+  if(bio==='volcan')hh+=Math.floor(Math.max(0,bruit(x,z,.05,42))*5);
+  for(let y=0;y<=hh;y++){
    let t='pierre';
-   if(y===h){t=bio==='desert'?'sable':bio==='neige'?'neige':bio==='volcan'?'roche_volcan':bio==='ocean'?'sable':'herbe'}
-   else if(y>h-3)t=bio==='desert'?'sable':'terre';
-   monde.set(cle(x,y,z),t)}
-  if(bio==='ocean')for(let y=6;y<=7;y++)monde.set(cle(x,y,z),'eau');
+   if(y===hh){t=bio==='desert'?'sable':bio==='neige'?'neige':bio==='volcan'?'roche_volcan':bio==='ocean'?'sable':bio==='montagne'&&hh>13?'pierre':bio==='marais'?'terre':'herbe'}
+   else if(y>hh-3)t=bio==='desert'?'sable':'terre';
+   poserBloc(x,y,z,t)}
+  if(bio==='ocean'||bio==='marais'&&hh<8)for(let y=hh+1;y<=7;y++)poserBloc(x,y,z,'eau');
   const r=Math.abs(bruit(x,z,.9,5));
-  if(bio==='foret'&&r>1.55){ // arbre
-   for(let y=h+1;y<=h+4;y++)monde.set(cle(x,y,z),'bois');
-   for(let dx=-1;dx<=1;dx++)for(let dz=-1;dz<=1;dz++)for(let dy=4;dy<=5;dy++)
-    if(!(dx===0&&dz===0&&dy===4))monde.set(cle(x+dx,h+dy,z+dz),'feuilles')}
-  else if((bio==='plaine'||bio==='foret')&&r>1.35&&r<=1.55)monde.set(cle(x,h+1,z),'fleur')}}
+  if(bio==='foret'&&r>1.4){
+   const ht=3+Math.floor(r);
+   for(let y=hh+1;y<=hh+ht;y++)poserBloc(x,y,z,'bois');
+   for(let dx=-2;dx<=2;dx++)for(let dz=-2;dz<=2;dz++)for(let dy=ht;dy<=ht+2;dy++)
+    if(Math.abs(dx)+Math.abs(dz)+Math.abs(dy-ht-1)<4&&!(dx===0&&dz===0&&dy===ht))poserBloc(x+dx,hh+dy,z+dz,'feuilles')}
+  else if((bio==='plaine'||bio==='prairie')&&r>1.5)poserBloc(x,hh+1,z,'fleur')}
+ // village au centre-est, château au nord
+ const vx=88,vz=76;
+ SPAWNS.length=0;
+ SPAWNS.push({t:'villageois',p:maison(vx,vz)});
+ SPAWNS.push({t:'villageoise',p:maison(vx+9,vz+2)});
+ SPAWNS.push({t:'astronome',p:maison(vx+3,vz+10)});
+ SPAWNS.push({t:'professeur',p:maison(vx+12,vz+11)});
+ champ(vx-8,vz+2);champ(vx-8,vz+8);
+ const pr=chateau(64,20);
+ SPAWNS.push({t:'roi',p:pr});
+ SPAWNS.push({t:'guerrier',p:[64+7,colonne(64+7,20-2)+1,20-2]});
+ chemin(vx+2,vz-2,71,36);chemin(TAILLE/2,TAILLE/2,vx-2,vz+2)}
+const SPAWNS=[];
 function estExpose(x,y,z){
  return !monde.has(cle(x+1,y,z))||!monde.has(cle(x-1,y,z))||!monde.has(cle(x,y+1,z))||
         !monde.has(cle(x,y-1,z))||!monde.has(cle(x,y,z+1))||!monde.has(cle(x,y,z-1))}
@@ -199,38 +313,104 @@ function rendreMonde(){
  const geo=new THREE.BoxGeometry(1,1,1);
  for(const t in parType){
   const pos=parType[t],b=BLOCS[t];
-  const mat=new THREE.MeshLambertMaterial({color:b.c,transparent:!!b.t,opacity:b.t?0.7:1});
+  TEXTURES[t]=TEXTURES[t]||makeTexture(t);
+  const mat=new THREE.MeshLambertMaterial({map:TEXTURES[t],transparent:!!b.t,opacity:b.t?0.75:1});
   const im=new THREE.InstancedMesh(geo,mat,pos.length);
   const m4=new THREE.Matrix4();
   pos.forEach((p,i)=>{m4.setPosition(p[0],p[1],p[2]);im.setMatrixAt(i,m4)});
-  im.userData={type:t,positions:pos};scene.add(im);meshes[t]=im}}
-function blocSous(x,z){for(let y=HMAX;y>=0;y--)if(monde.has(cle(Math.floor(x),y,Math.floor(z))))return y;return 5}
+  im.userData={type:t};scene.add(im);meshes[t]=im}}
+function particules(x,y,z,couleur){
+ const g=new THREE.BufferGeometry(),n=14,arr=new Float32Array(n*3),vel=[];
+ for(let i=0;i<n;i++){arr[i*3]=x;arr[i*3+1]=y;arr[i*3+2]=z;
+  vel.push([(Math.random()-.5)*4,Math.random()*4,(Math.random()-.5)*4])}
+ g.setAttribute('position',new THREE.BufferAttribute(arr,3));
+ const p=new THREE.Points(g,new THREE.PointsMaterial({color:couleur,size:.22}));
+ scene.add(p);let vie=0;
+ const anim=()=>{vie+=.05;const a=g.attributes.position.array;
+  for(let i=0;i<n;i++){a[i*3]+=vel[i][0]*.05;a[i*3+1]+=vel[i][1]*.05-vie*.12;a[i*3+2]+=vel[i][2]*.05}
+  g.attributes.position.needsUpdate=true;
+  if(vie<1)requestAnimationFrame(anim);else{scene.remove(p);g.dispose()}};anim()}
 function initScene(){
- scene=new THREE.Scene();scene.background=new THREE.Color(0x87ceeb);scene.fog=new THREE.Fog(0x87ceeb,40,90);
- camera=new THREE.PerspectiveCamera(72,innerWidth/innerHeight,.1,200);
+ scene=new THREE.Scene();scene.background=new THREE.Color(0x87ceeb);scene.fog=new THREE.Fog(0x87ceeb,55,120);
+ camera=new THREE.PerspectiveCamera(72,innerWidth/innerHeight,.1,300);
  renderer=new THREE.WebGLRenderer({antialias:false});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
  renderer.setSize(innerWidth,innerHeight);document.body.appendChild(renderer.domElement);
- scene.add(new THREE.AmbientLight(0xffffff,.65));
- soleil=new THREE.DirectionalLight(0xfff3d0,.8);soleil.position.set(40,60,20);scene.add(soleil);
+ ambiance=new THREE.AmbientLight(0xffffff,.6);scene.add(ambiance);
+ soleil=new THREE.DirectionalLight(0xfff3d0,.85);soleil.position.set(60,90,30);scene.add(soleil);
+ for(let i=0;i<14;i++){const n=new THREE.Mesh(new THREE.BoxGeometry(8+Math.random()*10,1,5+Math.random()*6),
+  new THREE.MeshLambertMaterial({color:0xffffff,transparent:true,opacity:.85}));
+  n.position.set(Math.random()*TAILLE,26+Math.random()*4,Math.random()*TAILLE);nuages.push(n);scene.add(n)}
  addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)})}
+function cycleJour(dt){
+ tJour+=dt/480; // journée de 8 minutes
+ const p=(Math.sin(tJour*Math.PI*2)+1)/2; // 1=midi 0=minuit
+ const lum=.25+p*.65;ambiance.intensity=lum*.75;soleil.intensity=lum;
+ const ciel=new THREE.Color().lerpColors(new THREE.Color(0x14213d),new THREE.Color(0x87ceeb),Math.min(1,p*1.4));
+ scene.background=ciel;scene.fog.color=ciel;
+ nuages.forEach(n=>{n.position.x+=dt*.7;if(n.position.x>TAILLE+10)n.position.x=-10})}
+
+// ══════════ PNJ (villageois, roi, guerrier...) ══════════
+const PNJS=[];
+function creerPNJ(type,pos){
+ const cfg=TYPES_PNJ[type],grp=new THREE.Group();
+ const mat=c=>new THREE.MeshLambertMaterial({color:c});
+ const tete=new THREE.Mesh(new THREE.BoxGeometry(.5,.5,.5),mat(cfg.ch));tete.position.y=1.55;grp.add(tete);
+ const corps=new THREE.Mesh(new THREE.BoxGeometry(.55,.75,.32),mat(cfg.cc));corps.position.y=.95;grp.add(corps);
+ for(const s of[-1,1]){
+  const bras=new THREE.Mesh(new THREE.BoxGeometry(.18,.6,.18),mat(cfg.cc));bras.position.set(s*.38,.95,0);grp.add(bras);
+  const jambe=new THREE.Mesh(new THREE.BoxGeometry(.2,.6,.2),mat(0x3e2723));jambe.position.set(s*.14,.3,0);grp.add(jambe)}
+ if(cfg.or){const cour=new THREE.Mesh(new THREE.BoxGeometry(.56,.14,.56),mat(0xffd700));cour.position.y=1.87;grp.add(cour)}
+ if(type==='guerrier'){const ep=new THREE.Mesh(new THREE.BoxGeometry(.08,.7,.08),mat(0xb0bec5));ep.position.set(.5,1.0,0);grp.add(ep)}
+ grp.position.set(pos[0],pos[1],pos[2]);scene.add(grp);
+ PNJS.push({type,grp,home:[...pos],cible:null,pause:Math.random()*3,dial:0})}
+function bougerPNJ(dt){
+ for(const p of PNJS){
+  p.pause-=dt;
+  if(p.pause<=0&&!p.cible){
+   p.cible=[p.home[0]+(Math.random()-.5)*8,p.home[2]+(Math.random()-.5)*8]}
+  if(p.cible){
+   const dx=p.cible[0]-p.grp.position.x,dz=p.cible[1]-p.grp.position.z;
+   const d=Math.hypot(dx,dz);
+   if(d<.3){p.cible=null;p.pause=2+Math.random()*4}
+   else{p.grp.position.x+=dx/d*dt*1.1;p.grp.position.z+=dz/d*dt*1.1;
+    p.grp.position.y=colonne(Math.round(p.grp.position.x),Math.round(p.grp.position.z))+1;
+    p.grp.rotation.y=Math.atan2(dx,dz);
+    p.grp.children[0].position.y=1.55+Math.sin(performance.now()/150)*.03}}}}
+function pnjVise(){
+ const dir=new THREE.Vector3(Math.sin(J.yaw)*Math.cos(J.pitch)*-1,Math.sin(J.pitch),Math.cos(J.yaw)*Math.cos(J.pitch)*-1);
+ const org=new THREE.Vector3(J.x,J.y+1.6,J.z);
+ for(const p of PNJS){
+  const v=p.grp.position.clone().add(new THREE.Vector3(0,1,0)).sub(org);
+  const d=v.length();
+  if(d<5&&v.normalize().dot(dir)>0.93)return p}
+ return null}
+function interagir(){
+ const p=pnjVise();if(!p)return false;
+ const cfg=TYPES_PNJ[p.type],txt=cfg.dial[p.dial%cfg.dial.length];p.dial++;
+ S.pnjParles++;S.parleA[p.type]=true;
+ bulle('💬 '+cfg.nom,txt,[['🔁 Répète',()=>parler(txt)],['👋 Au revoir',fermerBulle]]);
+ parler(txt);verifQuete();return true}
 
 // ══════════ JOUEUR & CONTRÔLES ══════════
-const J={x:TAILLE/2,y:14,z:TAILLE/2,vy:0,yaw:0,pitch:-0.15,sol:false};
+const J={x:TAILLE/2,y:16,z:TAILLE/2,vy:0,yaw:0,pitch:-0.12,sol:false};
 const touches={},joy={gx:0,gy:0,dx:0,dy:0};
-let hotbar=['herbe','terre','pierre','planches','torche','feu','laine_rouge','laine_jaune','laine_bleue'],slotSel=0;
+let hotbar=['herbe','terre','pierre','planches','torche','feu','laine_rouge','laine_jaune','chemin'],slotSel=0;
 const tactile='ontouchstart' in window;
 addEventListener('keydown',e=>{touches[e.key.toLowerCase()]=true;
  if(e.key===' ')e.preventDefault();
  if(e.key>='1'&&e.key<='9')selSlot(+e.key-1);
- if(e.key.toLowerCase()==='e')ouvrirInventaire();
- if(e.key.toLowerCase()==='c')ouvrirCraft();
- if(e.key==='Escape')fermerPanneau()});
+ const k=e.key.toLowerCase();
+ if(k==='f')poser();if(k==='e')ouvrirInventaire();if(k==='c')ouvrirCraft();
+ if(k==='r')interagir();if(e.key==='Escape'){fermerPanneau();fermerBulle()}});
 addEventListener('keyup',e=>touches[e.key.toLowerCase()]=false);
-document.addEventListener('mousemove',e=>{if(document.pointerLockElement){J.yaw-=e.movementX*.0024;J.pitch=Math.max(-1.4,Math.min(1.4,J.pitch-e.movementY*.0024))}});
+document.addEventListener('mousemove',e=>{if(document.pointerLockElement){
+ J.yaw-=e.movementX*.0024;J.pitch=Math.max(-1.4,Math.min(1.4,J.pitch-e.movementY*.0024));tutoRegarde+=Math.abs(e.movementX)*.002}});
 document.addEventListener('mousedown',e=>{
- if(!enJeu||document.getElementById('panneau').classList.contains('hidden')===false)return;
+ if(!enJeu||!document.getElementById('panneau').classList.contains('hidden'))return;
+ if(!document.getElementById('bulle').classList.contains('hidden'))return;
  if(!document.pointerLockElement&&!tactile){renderer.domElement.requestPointerLock();return}
- if(e.button===0)casser();if(e.button===2)poser()});
+ if(e.button===0){if(!interagir())casser()}
+ if(e.button===2){if(S.preset==='adapte'){if(J.sol)J.vy=7.5}else poser()}});
 document.addEventListener('contextmenu',e=>e.preventDefault());
 function initJoy(id,cb){
  const el=document.getElementById(id),st=el.querySelector('.stick');let actif=null;
@@ -245,15 +425,16 @@ function rayonBloc(placer){
  const dir=new THREE.Vector3(Math.sin(J.yaw)*Math.cos(J.pitch)*-1,Math.sin(J.pitch),Math.cos(J.yaw)*Math.cos(J.pitch)*-1);
  const p=new THREE.Vector3(J.x,J.y+1.6,J.z);
  let prev=null;
- for(let i=0;i<60;i++){p.addScaledVector(dir,.1);
+ for(let i=0;i<70;i++){p.addScaledVector(dir,.1);
   const bx=Math.round(p.x),by=Math.round(p.y),bz=Math.round(p.z);
   if(monde.has(cle(bx,by,bz))&&monde.get(cle(bx,by,bz))!=='eau')return placer?prev:[bx,by,bz];
   prev=[bx,by,bz]}
  return null}
 function casser(){const b=rayonBloc(false);if(!b)return;
  const t=monde.get(cle(...b));monde.delete(cle(...b));
- S.inv[t]=(S.inv[t]||0)+1;rendreMonde();majHUD();
- if(t==='fleur')son(880);else son(440);verifQuete()}
+ S.inv[t]=(S.inv[t]||0)+1;
+ particules(b[0],b[1],b[2],parseInt(BLOCS[t].c.slice(1),16));
+ rendreMonde();majHUD();son(t==='fleur'?880:440);verifQuete()}
 function poser(){const b=rayonBloc(true);if(!b)return;
  const t=hotbar[slotSel];
  if(S.mode!=='construction'){if(!S.inv[t]||S.inv[t]<=0){toast('Pas de '+(BLOCS[t].e||'')+' — fabrique ou récolte !');return}S.inv[t]--}
@@ -263,49 +444,70 @@ function bougerJoueur(dt){
  let ax=0,az=0;
  if(touches['z']||touches['w'])az=-1;if(touches['s'])az=1;
  if(touches['q']||touches['a'])ax=-1;if(touches['d'])ax=1;
+ if(S.preset==='adapte'&&touches[' '])az=-1; // espace = avancer
  ax+=joy.gx;az+=joy.gy;
+ if(ax||az)tutoBouge+=dt;
  J.yaw-=joy.dx*dt*2.2;J.pitch=Math.max(-1.4,Math.min(1.4,J.pitch-joy.dy*dt*1.8));
+ tutoRegarde+=Math.abs(joy.dx)*dt*2;
  const v=5.2*dt,sin=Math.sin(J.yaw),cos=Math.cos(J.yaw);
  J.x+=(-sin*az*-1+cos*ax)*v*-1;J.z+=(-cos*az*-1-sin*ax)*v*-1;
  J.x=Math.max(1,Math.min(TAILLE-2,J.x));J.z=Math.max(1,Math.min(TAILLE-2,J.z));
- const sol=blocSous(J.x,J.z)+1;
+ const sol=colonne(Math.floor(J.x),Math.floor(J.z))+1;
  J.vy-=18*dt;J.y+=J.vy*dt;
  if(J.y<=sol){J.y=sol;J.vy=0;J.sol=true}else J.sol=false;
- if((touches[' ']||touches['espace'])&&J.sol)J.vy=7.2;
+ if(S.preset==='classique'&&touches[' ']&&J.sol)J.vy=7.5;
+ if(touches['shift']&&J.sol)J.vy=7.5;
  camera.position.set(J.x,J.y+1.6,J.z);
- camera.rotation.set(0,0,0);camera.rotateY(J.yaw);camera.rotateX(J.pitch)}
+ camera.rotation.set(0,0,0);camera.rotateY(J.yaw);camera.rotateX(J.pitch);
+ const p=pnjVise(),n=document.getElementById('nomPNJ');
+ if(p){n.textContent='💬 '+TYPES_PNJ[p.type].nom+' — clique pour parler';n.style.display='block'}
+ else n.style.display='none'}
 
-// ══════════ JEU, MAESTRO, VOIX, MENUS ══════════
+// ══════════ JEU, MAESTRO, VOIX, TUTO, MENUS ══════════
 let enJeu=false,audioCtx;
 function son(freq){try{audioCtx=audioCtx||new (window.AudioContext||webkitAudioContext)();
  const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);
  o.frequency.value=freq;g.gain.setValueAtTime(.12,audioCtx.currentTime);
  g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+.25);o.start();o.stop(audioCtx.currentTime+.25)}catch(e){}}
-function parler(txt){try{speechSynthesis.cancel();
- const u=new SpeechSynthesisUtterance(txt);u.lang='fr-FR';u.rate=.92;
- u.pitch=(PROFILS.find(p=>p.id===S.profil)||{voix:1}).voix;
+function parler(txt,maestro){try{speechSynthesis.cancel();
+ const u=new SpeechSynthesisUtterance(txt);u.lang='fr-FR';
  const v=speechSynthesis.getVoices().filter(v=>v.lang.startsWith('fr'));
- const douce=v.find(x=>/denise|eloise|vivienne|female|amelie/i.test(x.name))||v[0];
- if(douce)u.voice=douce;speechSynthesis.speak(u)}catch(e){}}
+ if(maestro){ // voix de conteur : masculine, lente et chaleureuse
+  u.rate=.85;u.pitch=.9;
+  u.voice=v.find(x=>/henri|paul|thierry|nicolas|male|claude/i.test(x.name))||v[0]}
+ else{u.rate=.92;u.pitch=(PROFILS.find(p=>p.id===S.profil)||{voix:1}).voix;
+  u.voice=v.find(x=>/denise|eloise|vivienne|female|amelie|charlotte/i.test(x.name))||v[0]}
+ speechSynthesis.speak(u)}catch(e){}}
 function toast(t){const el=document.getElementById('toast');el.textContent=t;el.style.opacity=1;
  setTimeout(()=>el.style.opacity=0,2600)}
 function confettis(){for(let i=0;i<24;i++){const c=document.createElement('div');c.className='confetti';
  c.textContent=['🎉','⭐','🌟','💛','🎊'][i%5];c.style.left=Math.random()*100+'vw';c.style.top='-30px';
  document.body.appendChild(c);setTimeout(()=>c.remove(),2400)}}
-// ── Maestro & quêtes ──
-function queteActuelle(){return QUETES[S.profil][S.quete]}
-function majObjectif(){const q=queteActuelle();
- document.getElementById('objectif').textContent=q?('🎯 '+q.txt):'🏆 Préhistoire terminée ! D\'autres âges arrivent...'}
-function verifQuete(){const q=queteActuelle();if(!q||!q.test(S))return;
+// ── Tuto & quêtes ──
+function queteActuelle(){return S.tutoFini?QUETES[S.profil][S.quete]:null}
+function majObjectif(){
+ const o=document.getElementById('objectif');
+ if(!S.tutoFini){o.textContent='📖 '+TUTO[S.tuto].txt;return}
+ const q=queteActuelle();
+ o.textContent=q?('🎯 '+q.txt):'🏆 Préhistoire terminée ! Les autres âges arrivent...'}
+function verifQuete(){
+ if(!S.tutoFini){
+  if(TUTO[S.tuto].test(S)){S.tuto++;
+   if(S.tuto>=TUTO.length-1){S.tutoFini=true;confettis();son(880);
+    setTimeout(()=>{parler(TUTO[TUTO.length-1].dit,true);setTimeout(maestroDit,3500)},300)}
+   else{son(700);parler(TUTO[S.tuto].dit,true)}
+   majObjectif()}
+  return}
+ const q=queteActuelle();if(!q||!q.test(S))return;
  S.quete++;S.gemmes+=3;confettis();son(880);setTimeout(()=>son(1100),150);setTimeout(()=>son(1320),300);
  toast('⭐ Quête réussie ! +3 gemmes');
  const suiv=queteActuelle();
- parler(suiv?('Bravo ! '+suiv.dit):'Félicitations ! Tu as terminé la Préhistoire ! Je suis très fier de toi !');
+ parler(suiv?('Bravo ! Nouvelle mission : '+suiv.dit):'Félicitations ! Tu as terminé la Préhistoire ! Je suis très fier de toi !',true);
  majObjectif();majHUD();sauver()}
 function maestroDit(){const q=queteActuelle();
- bulle('🎻 Maestro',q?q.dit:'Tu as tout fini, champion·ne ! De nouveaux âges arrivent bientôt : le Néolithique, l\'Antiquité, le Moyen Âge...',
-  q?[['🔁 Répète',()=>parler(q.dit)],['✅ Compris !',fermerBulle]]:[['🎉 Youpi !',fermerBulle]]);
- parler(q?q.dit:'Tu as tout fini !')}
+ const txt=q?q.dit:(S.tutoFini?'Tu as tout fini, champion ! Bientôt : le Néolithique, l\'Antiquité, le Moyen Âge...':TUTO[S.tuto].dit);
+ bulle('🎻 Maestro',txt,[['🔁 Répète',()=>parler(txt,true)],['✅ Compris !',fermerBulle]]);
+ parler(txt,true)}
 function bulle(qui,txt,choix){const b=document.getElementById('bulle');
  b.innerHTML='<div class="qui">'+qui+'</div><div class="txt">'+txt+'</div><div class="choix"></div>';
  const ch=b.querySelector('.choix');
@@ -317,19 +519,20 @@ let reco=null;
 function toggleMicro(){
  if(S.micro){S.micro=false;try{reco.stop()}catch(e){};document.getElementById('btnMicro').classList.remove('on');toast('Micro coupé');return}
  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
- if(!SR){toast('Vocal non supporté sur ce navigateur');return}
+ if(!SR){toast('Vocal non supporté ici (essaie Chrome/Edge)');return}
  reco=new SR();reco.lang='fr-FR';reco.continuous=true;reco.interimResults=false;
- reco.onresult=e=>{const t=e.results[e.results.length-1][0].transcript.toLowerCase();cmdVocale(t)};
+ reco.onresult=e=>{cmdVocale(e.results[e.results.length-1][0].transcript.toLowerCase())};
  reco.onend=()=>{if(S.micro)try{reco.start()}catch(e){}};
  reco.start();S.micro=true;document.getElementById('btnMicro').classList.add('on');
- toast('🎤 Micro actif ! Dis : menu, craft, inventaire, maestro, aide, saute');parler('Je t\'écoute !')}
+ toast('🎤 Dis : menu, craft, inventaire, maestro, aide, saute');parler('Je t\'écoute !')}
 function cmdVocale(t){
  if(t.includes('menu'))return ouvrirModes();
  if(t.includes('craft')||t.includes('fabri'))return ouvrirCraft();
  if(t.includes('inventaire')||t.includes('sac'))return ouvrirInventaire();
  if(t.includes('maestro')||t.includes('mission')||t.includes('quête'))return maestroDit();
- if(t.includes('aide'))return parler('Tu peux dire : menu, craft, inventaire, maestro, ou saute. Pour casser un bloc, clique ou touche la pioche.');
- if(t.includes('saute')||t.includes('saut')){if(J.sol)J.vy=7.2;return}
+ if(t.includes('touche')||t.includes('guide'))return ouvrirGuide();
+ if(t.includes('aide'))return parler('Tu peux dire : menu, craft, inventaire, maestro, touches, ou saute.');
+ if(t.includes('saut')){if(J.sol)J.vy=7.5;return}
  if(t.includes('ferme'))return fermerPanneau()}
 // ── HUD / panneaux ──
 function majHUD(){document.getElementById('gemmes').textContent=S.gemmes;
@@ -353,21 +556,32 @@ function ouvrirCraft(){const g=ouvrirPanneau('🛠️ Fabriquer');
  RECETTES.forEach(r=>{const d=document.createElement('div');d.className='item';
   const ok=Object.entries(r.besoin).every(([t,n])=>(S.inv[t]||0)>=n);
   d.innerHTML='<div class="emoji">'+r.emoji+'</div><b>'+r.nom+'</b><br><small>'+
-   Object.entries(r.besoin).map(([t,n])=>n+' '+BLOCS[t].e).join(' + ')+'</small>'+(ok?'':'<div class="bientot">il manque des ressources</div>');
+   Object.entries(r.besoin).map(([t,n])=>n+' '+BLOCS[t].e).join(' + ')+'</small>'+(ok?'':'<div class="bientot">ressources manquantes</div>');
   if(ok)d.onclick=()=>{Object.entries(r.besoin).forEach(([t,n])=>S.inv[t]-=n);
-   S.inv[r.res]=(S.inv[r.res]||0)+r.n;son(700);toast('✅ '+r.nom+' fabriqué !');parler(r.nom+', fabriqué !');ouvrirCraft();verifQuete();majHUD()};
+   S.inv[r.res]=(S.inv[r.res]||0)+r.n;son(700);toast('✅ '+r.nom+' !');parler(r.nom+', fabriqué !');ouvrirCraft();verifQuete();majHUD()};
   g.appendChild(d)})}
 function ouvrirModes(){const g=ouvrirPanneau('🧩 Modes de jeu');
  MODES.forEach(m=>{const d=document.createElement('div');d.className='item';
   d.innerHTML='<div class="emoji">'+m.emoji+'</div><b>'+m.nom+'</b>'+(m.actif?(S.mode===m.id?'<div style="color:#3dba6f">✔ actif</div>':''):'<div class="bientot">bientôt — greffable</div>');
   if(m.actif)d.onclick=()=>{S.mode=m.id;toast(m.emoji+' Mode '+m.nom);parler('Mode '+m.nom+' activé');majHUD();fermerPanneau()};
   g.appendChild(d)})}
+function ouvrirGuide(){const g=ouvrirPanneau('❓ Guide des touches');
+ g.innerHTML='<div class="guide">'+
+ '<b>PC — préréglage '+(S.preset==='adapte'?'Adapté ✋':'Classique 🎮')+'</b><br>'+
+ '🚶 Bouger : <b>Z Q S D</b>'+(S.preset==='adapte'?' · Avancer : <b>ESPACE</b>':'')+'<br>'+
+ '⬆️ Sauter : <b>'+(S.preset==='adapte'?'CLIC DROIT':'ESPACE')+'</b> (ou Shift)<br>'+
+ '⛏️ Casser : <b>CLIC GAUCHE</b> · 🧱 Poser : <b>F</b>'+(S.preset==='classique'?' ou <b>CLIC DROIT</b>':'')+'<br>'+
+ '💬 Parler à un personnage : <b>CLIC GAUCHE</b> sur lui ou <b>R</b><br>'+
+ '🎒 Inventaire : <b>E</b> · 🛠️ Craft : <b>C</b> · 1-9 : choisir le bloc<br><br>'+
+ '<b>Tablette / téléphone</b><br>🕹️ Gauche : bouger · 🕹️ Droit : regarder<br>'+
+ '⬆️ sauter · ⛏️ casser · 🧱 poser · 💬 parler<br><br>'+
+ '<b>🎤 Vocal</b> : menu, craft, inventaire, maestro, touches, saute</div>'}
 function menuTitre(){enJeu=false;sauver();document.getElementById('ecranTitre').classList.remove('hidden');
  document.getElementById('hud').classList.add('hidden');fermerBulle();fermerPanneau();
  if(document.pointerLockElement)document.exitPointerLock()}
 // ── Sauvegarde ──
-function sauver(){try{localStorage.setItem('civ_'+S.profil,JSON.stringify({inv:S.inv,poses:S.poses,totalPoses:S.totalPoses,gemmes:S.gemmes,quete:S.quete}))}catch(e){}}
-function charger(){try{const d=JSON.parse(localStorage.getItem('civ_'+S.profil));if(d)Object.assign(S,d)}catch(e){}}
+function sauver(){try{localStorage.setItem('civ2_'+S.profil,JSON.stringify({inv:S.inv,poses:S.poses,totalPoses:S.totalPoses,gemmes:S.gemmes,quete:S.quete,tutoFini:S.tutoFini,pnjParles:S.pnjParles,parleA:S.parleA}))}catch(e){}}
+function charger(){try{const d=JSON.parse(localStorage.getItem('civ2_'+S.profil));if(d)Object.assign(S,d)}catch(e){}}
 // ── Écran titre ──
 function carte(parent,html,cb){const d=document.createElement('div');d.className=parent.id==='profils'?'carte':'pill';
  d.innerHTML=html;d.onclick=()=>{[...parent.children].forEach(c=>c.classList.remove('sel'));d.classList.add('sel');cb();majBtn()};
@@ -377,6 +591,9 @@ PROFILS.forEach(p=>carte(document.getElementById('profils'),
  '<div class="emoji">'+p.emoji+'</div><div class="nom">'+p.nom+'</div><div class="desc">'+p.desc+'</div>',()=>S.profil=p.id));
 AVATARS.forEach(a=>carte(document.getElementById('avatars'),a.emoji+' '+a.nom,()=>S.avatar=a.id));
 DIFFICULTES.forEach(d=>carte(document.getElementById('difficultes'),d,()=>S.diff=d));
+document.querySelectorAll('#presets .pill').forEach(p=>p.onclick=()=>{
+ document.querySelectorAll('#presets .pill').forEach(x=>x.classList.remove('sel'));
+ p.classList.add('sel');S.preset=p.dataset.p});
 document.getElementById('btnModes').onclick=ouvrirModes;
 document.getElementById('btnMicro').onclick=toggleMicro;
 document.getElementById('btnJouer').onclick=()=>{
@@ -386,20 +603,26 @@ document.getElementById('btnJouer').onclick=()=>{
   document.getElementById('joyD').style.display='block';
   document.getElementById('btnsTactiles').style.display='flex'}
  if(!scene){initScene();genMonde();rendreMonde();
+  SPAWNS.forEach(s=>creerPNJ(s.t,s.p));
   initJoy('joyG',(x,y)=>{joy.gx=x;joy.gy=y});initJoy('joyD',(x,y)=>{joy.dx=x;joy.dy=y});
-  document.getElementById('btnSaut').ontouchstart=()=>{if(J.sol)J.vy=7.2};
-  document.getElementById('btnCasser').ontouchstart=casser;
+  document.getElementById('btnSaut').ontouchstart=()=>{if(J.sol)J.vy=7.5};
+  document.getElementById('btnCasser').ontouchstart=()=>{if(!interagir())casser()};
   document.getElementById('btnPoser').ontouchstart=poser;
   boucle()}
- S.inv={};S.poses={};S.totalPoses=0;S.gemmes=0;S.quete=0;charger();
- J.x=TAILLE/2;J.z=TAILLE/2;J.y=blocSous(J.x,J.z)+2;
+ S.inv={};S.poses={};S.totalPoses=0;S.gemmes=0;S.quete=0;S.pnjParles=0;S.parleA={};S.tuto=0;S.tutoFini=false;
+ charger();
+ J.x=TAILLE/2;J.z=TAILLE/2;J.y=colonne(Math.floor(J.x),Math.floor(J.z))+2;
  enJeu=true;majHUD();majObjectif();
  const p=PROFILS.find(x=>x.id===S.profil);
- setTimeout(()=>{parler('Bonjour '+p.nom+' ! Je suis le Maestro. Bienvenue à la Préhistoire !');maestroDit()},600)};
+ setTimeout(()=>{
+  if(!S.tutoFini){parler('Bonjour '+p.nom+' ! Je suis le Maestro, ton conteur. Avant l\'aventure, apprenons à jouer ! '+TUTO[0].dit,true)}
+  else{parler('Re-bonjour '+p.nom+' ! Reprenons l\'aventure !',true);maestroDit()}},600)};
 let tPrec=0;
 function boucle(t){requestAnimationFrame(boucle);
  const dt=Math.min(.05,(t-tPrec)/1000||.016);tPrec=t;
- if(enJeu){bougerJoueur(dt);renderer.render(scene,camera)}}
+ if(enJeu){bougerJoueur(dt);bougerPNJ(dt);cycleJour(dt);
+  if(!S.tutoFini&&S.tuto<2)verifQuete();
+  renderer.render(scene,camera)}}
 speechSynthesis&&speechSynthesis.getVoices();
 
 </script>
