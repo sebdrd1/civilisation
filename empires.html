@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>⚔️ EMPIRES — L'Épopée de l'Humanité</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none}
+:root{--or:#e8a33d;--vert:#3dba6f}
+body{background:#0d1526;color:#fff;overflow:hidden;width:100vw;height:100vh}
+canvas{display:block;image-rendering:pixelated}
+.hidden{display:none!important}
+.ecran{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;background:linear-gradient(180deg,#0d1526,#1a2a4a);z-index:50;overflow-y:auto;padding:20px 16px}
+h1{font-size:clamp(24px,6vw,40px);color:var(--or);text-shadow:0 3px 10px #000}
+h2{color:var(--or);margin:10px 0 4px;font-size:17px}
+.sous{color:#9fb3d9;margin:4px 0 8px;text-align:center;font-size:13px}
+.cartes{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.carte{background:#16213e;border:3px solid #2a3f6e;border-radius:14px;padding:10px 16px;text-align:center;cursor:pointer;min-width:120px}
+.carte:hover,.carte.sel{border-color:var(--or)}
+.carte .emoji{font-size:32px}
+.carte .nom{font-weight:700;font-size:13px}
+.carte .desc{font-size:11px;color:#9fb3d9}
+.pill{background:#16213e;border:2px solid #2a3f6e;border-radius:20px;padding:6px 12px;cursor:pointer;font-size:13px}
+.pill.sel{border-color:var(--vert);background:#1e3a2f}
+.rang{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin:4px 0}
+.btn{background:var(--or);color:#1a1a2e;font-weight:800;font-size:18px;border:none;border-radius:12px;padding:13px 32px;cursor:pointer;margin-top:14px}
+.btn:disabled{opacity:.4}
+#ui{position:fixed;inset:0;pointer-events:none;z-index:10}
+#ressources{position:fixed;top:6px;left:50%;transform:translateX(-50%);display:flex;gap:12px;background:rgba(13,21,38,.88);border:2px solid #2a3f6e;border-radius:12px;padding:6px 14px;font-size:14px;font-weight:700}
+#objectif{position:fixed;top:46px;left:50%;transform:translateX(-50%);background:rgba(13,21,38,.85);border:2px solid var(--or);border-radius:10px;padding:6px 14px;font-size:14px;max-width:94vw;text-align:center}
+#ageBox{position:fixed;top:6px;left:8px;background:rgba(13,21,38,.85);border-radius:10px;padding:6px 10px;font-size:13px;pointer-events:auto;cursor:pointer;border:2px solid #2a3f6e}
+#barreHaut{position:fixed;top:6px;right:8px;display:flex;gap:6px;pointer-events:auto}
+.btnH{background:rgba(13,21,38,.85);border:2px solid #2a3f6e;border-radius:10px;color:#fff;padding:7px 10px;font-size:15px;cursor:pointer}
+.btnH.on{border-color:var(--vert)}
+#actions{position:fixed;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:8px;pointer-events:auto;flex-wrap:wrap;justify-content:center;max-width:98vw}
+.act{background:rgba(22,33,62,.92);border:2px solid #3d5aa0;border-radius:12px;color:#fff;padding:8px 12px;font-size:14px;cursor:pointer;text-align:center;min-width:74px}
+.act:hover{border-color:var(--or)}
+.act small{display:block;font-size:10px;color:#9fb3d9}
+.act.off{opacity:.45}
+#selInfo{position:fixed;bottom:78px;left:50%;transform:translateX(-50%);background:rgba(13,21,38,.85);border-radius:10px;padding:5px 12px;font-size:13px;color:var(--or)}
+.bulle{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(22,33,62,.97);border:3px solid var(--or);border-radius:16px;padding:16px 20px;max-width:min(600px,94vw);z-index:45;pointer-events:auto}
+.bulle .qui{color:var(--or);font-weight:800;margin-bottom:6px}
+.bulle .txt{font-size:16px;line-height:1.5;max-height:40vh;overflow-y:auto}
+.bulle .choix{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.bulle .choix button{background:#2a3f6e;color:#fff;border:2px solid #3d5aa0;border-radius:10px;padding:10px 16px;font-size:15px;cursor:pointer}
+#toast{position:fixed;top:90px;left:50%;transform:translateX(-50%);background:var(--vert);color:#08120c;font-weight:800;border-radius:12px;padding:9px 18px;z-index:60;transition:.3s;opacity:0}
+.confetti{position:fixed;font-size:26px;z-index:70;pointer-events:none;animation:tomber 2.2s ease-in forwards}
+@keyframes tomber{0%{transform:translateY(-30px)}100%{transform:translateY(105vh) rotate(720deg);opacity:.2}}
+</style>
+</head>
+<body>
+<div id="ecranTitre" class="ecran">
+  <h1>⚔️ EMPIRES</h1>
+  <p class="sous">L'Épopée de l'Humanité — pixel art rétro années 90<br>Age of Empires × MineColonies × Il était une fois... (l'Homme · les Découvreurs · les Inventeurs · les Amériques)</p>
+  <h2>Qui joue ?</h2><div class="cartes" id="profils"></div>
+  <h2>Difficulté</h2><div class="rang" id="difficultes"></div>
+  <button class="btn" id="btnJouer" disabled>▶️ JOUER</button>
+</div>
+<div id="ui" class="hidden">
+  <div id="ressources">🌲<span id="rBois">100</span> 🍞<span id="rNour">100</span> ⛰️<span id="rPierre">50</span> ✨<span id="rOr">0</span> 👥<span id="rPop">3/8</span></div>
+  <div id="ageBox">🕰️ <b id="ageNom">Préhistoire</b> · <span id="ageBtn" style="color:var(--or)">passer d'âge ➜</span></div>
+  <div id="objectif">🎯 Bienvenue !</div>
+  <div id="barreHaut">
+    <button class="btnH" id="btnMicro">🎤</button>
+    <button class="btnH" id="btnCreatif" title="Mode créatif">🧱</button>
+    <button class="btnH" onclick="maestroHistoire()">🎻</button>
+    <button class="btnH" onclick="menuTitre()">🏠</button>
+  </div>
+  <div id="selInfo" class="hidden"></div>
+  <div id="actions"></div>
+</div>
+<div id="bulle" class="bulle hidden"></div>
+<div id="toast"></div>
+<script>
+// ══ DIAGNOSTIC ══
+window.onerror=function(m,s,l){let d=document.getElementById('errbox');
+ if(!d){d=document.createElement('div');d.id='errbox';
+  d.style.cssText='position:fixed;top:0;left:0;right:0;background:#b71c1c;color:#fff;padding:8px;font-size:13px;z-index:99;white-space:pre-wrap';
+  document.body.appendChild(d)}d.textContent+='⚠ '+m+' (l.'+l+')\n';return false};
+// ══ DONNÉES ══
+const PROFILS=[
+ {id:'leana',emoji:'🌸',nom:'Léana',desc:'6 ans — guidée pas à pas',voix:1.25},
+ {id:'mathias',emoji:'🔨',nom:'Mathias',desc:'10 ans — bâtisseur',voix:1.1},
+ {id:'papa',emoji:'👑',nom:'Papa',desc:'stratège complet',voix:1.0}];
+const DIFFICULTES=['baby','novice','normal','medium','pro','expert','hard','hardcore'];
+const AGES=[
+ {nom:'Préhistoire',emoji:'🪨',cout:{},teinte:'#7a6a52',histoire:'Il était une fois... l\'Homme ! Il y a très longtemps, nos ancêtres vivaient de chasse et de cueillette. Ils ont découvert le feu, taillé la pierre, peint les grottes de Lascaux. Récolte du bois et de la nourriture pour faire grandir ta tribu !'},
+ {nom:'Antiquité',emoji:'🏛️',cout:{nour:150,bois:100},teinte:'#c9b178',histoire:'L\'Antiquité ! En Mésopotamie naît l\'écriture, en Égypte s\'élèvent les pyramides, à Athènes le peuple invente la démocratie et à Rome les légions bâtissent des routes. Ton village devient une cité !'},
+ {nom:'Moyen Âge',emoji:'🏰',cout:{nour:300,bois:200,pierre:100},teinte:'#8a93a5',histoire:'Le Moyen Âge ! Châteaux forts, chevaliers, cathédrales... Pendant ce temps, l\'empire du Mali brille en Afrique et Byzance garde les savoirs anciens. Fortifie ta cité avec des tours et une caserne !'},
+ {nom:'Renaissance',emoji:'⛵',cout:{nour:500,bois:300,pierre:200,or:50},teinte:'#b98d5e',histoire:'Il était une fois... les Découvreurs ! Colomb traverse l\'océan vers les Amériques où brillent déjà les cités mayas, aztèques et incas. Magellan fait le tour du monde, Gutenberg imprime les premiers livres, Léonard de Vinci dessine des machines volantes !'},
+ {nom:'Industriel',emoji:'🏭',cout:{nour:800,bois:500,pierre:300,or:150},teinte:'#6d7b8d',histoire:'Il était une fois... les Inventeurs ! La machine à vapeur, le train, l\'électricité, le téléphone ! Pasteur vainc les microbes, Marie Curie découvre la radioactivité. Le monde s\'accélère — ta cité devient une capitale !'}];
+const BATS={
+ hdv:{nom:'Hôtel de ville',emoji:'🏛️',w:2,age:0,cout:{bois:200,pierre:100},pv:60,desc:'Forme des colons'},
+ maison:{nom:'Maison',emoji:'🏠',w:1,age:0,cout:{bois:40},pv:20,desc:'+4 population'},
+ ferme:{nom:'Ferme',emoji:'🌾',w:1,age:0,cout:{bois:50},pv:15,desc:'Produit la nourriture'},
+ caserne:{nom:'Caserne',emoji:'⚔️',w:2,age:2,cout:{bois:120,pierre:80},pv:50,desc:'Forme des soldats'},
+ tour:{nom:'Tour de garde',emoji:'🗼',w:1,age:2,cout:{pierre:60},pv:40,desc:'Défend la cité'},
+ marche:{nom:'Marché',emoji:'⚖️',w:2,age:1,cout:{bois:100},pv:30,desc:'Produit de l\'or'},
+ merveille:{nom:'Merveille',emoji:'🏆',w:3,age:3,cout:{bois:400,pierre:400,or:200},pv:100,desc:'La gloire de ta civilisation !'}};
+const S={profil:null,diff:'normal',age:0,res:{bois:100,nour:100,pierre:50,or:0},pop:0,popMax:8,
+ sel:null,placer:null,creatif:false,micro:false,quete:0,vagues:0};
+const QUETES=[
+ {txt:'👆 Clique sur un colon pour le sélectionner',test:()=>S.sel&&S.sel.type==='colon',dit:'Bienvenue chef ! Clique sur un de tes colons — les petits personnages près du feu de camp.'},
+ {txt:'🌲 Envoie-le couper un arbre (clique sur une forêt)',test:()=>S.res.bois>=120,dit:'Ordonne-lui de couper du bois : clique sur un arbre. Le bois sert à tout construire !'},
+ {txt:'🏠 Construis une maison (menu du bas)',test:()=>compteBat('maison')>=1,dit:'Construis une maison avec le menu en bas : un colon ira la bâtir planche par planche, comme dans une vraie colonie !'},
+ {txt:'👶 Forme un nouveau colon (clique sur l\'Hôtel de ville)',test:()=>S.pop>=4,dit:'Clique sur ton Hôtel de ville et forme un nouveau colon. Plus de bras, plus de récoltes !'},
+ {txt:'🌾 Construis une ferme pour la nourriture',test:()=>compteBat('ferme')>=1,dit:'Construis une ferme : la nourriture fait grandir la population.'},
+ {txt:'🏛️ Passe à l\'Antiquité (bouton en haut à gauche)',test:()=>S.age>=1,dit:'Quand tu as assez de ressources, clique sur passer d\'âge, en haut à gauche. Chaque âge raconte une nouvelle histoire !'},
+ {txt:'🏆 Continue jusqu\'à la Merveille ! (âges, marché, caserne...)',test:()=>compteBat('merveille')>=1,dit:'À toi de jouer : traverse les âges, bâtis un marché, une caserne, des tours... et un jour, ta Merveille !'}];
+
+// ══ SPRITES PIXEL ART (procéduraux, palette rétro) ══
+const TW=64,TH=32,MAP=44;
+const cvs=document.createElement('canvas');document.body.appendChild(cvs);
+const ctx=cvs.getContext('2d');ctx.imageSmoothingEnabled=false;
+function px(g,x,y,w,h,c){g.fillStyle=c;g.fillRect(x,y,w,h)}
+function spriteTuile(base,fonce,motif){
+ const c=document.createElement('canvas');c.width=TW;c.height=TH;const g=c.getContext('2d');
+ g.beginPath();g.moveTo(TW/2,0);g.lineTo(TW,TH/2);g.lineTo(TW/2,TH);g.lineTo(0,TH/2);g.closePath();
+ g.fillStyle=base;g.fill();g.strokeStyle=fonce;g.lineWidth=1;g.stroke();
+ g.save();g.clip();
+ for(let i=0;i<26;i++)px(g,Math.random()*TW,Math.random()*TH,2,2,Math.random()<.5?fonce:motif);
+ g.restore();return c}
+function spriteArbre(){
+ const c=document.createElement('canvas');c.width=32;c.height=44;const g=c.getContext('2d');
+ px(g,14,30,4,12,'#5d4037');
+ for(const[y,w,col]of[[22,22,'#1b5e20'],[14,18,'#2e7d32'],[6,12,'#43a047']])
+  px(g,16-w/2,y,w,9,col);
+ px(g,12,4,4,4,'#66bb6a');return c}
+function spriteRocher(or){
+ const c=document.createElement('canvas');c.width=32;c.height=26;const g=c.getContext('2d');
+ px(g,4,10,24,14,or?'#8d6e63':'#78909c');px(g,8,6,16,10,or?'#a1887f':'#90a4ae');
+ if(or){px(g,12,10,4,4,'#ffd54f');px(g,20,14,3,3,'#ffd54f');px(g,8,16,3,3,'#ffe082')}
+ else px(g,10,8,5,4,'#b0bec5');return c}
+function spriteBat(id,ageT){
+ const B=BATS[id],w=B.w*TW*.8,h=B.w*38+18;
+ const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');
+ const mur=ageT||'#c9b178',toit=id==='merveille'?'#ffd54f':'#8d3b2f',fonce='#00000044';
+ if(id==='ferme'){for(let i=0;i<4;i++)px(g,4,h-14-i*7,w-8,5,i%2?'#e9c94a':'#c9a227');
+  px(g,2,h-8,w-4,6,'#795548');return c}
+ if(id==='tour'){px(g,w/2-9,14,18,h-18,mur);px(g,w/2-12,8,24,10,'#78909c');
+  px(g,w/2-10,4,5,6,'#78909c');px(g,w/2+5,4,5,6,'#78909c');px(g,w/2-4,h-22,8,10,fonce);return c}
+ const bh=h*.55;
+ px(g,3,h-bh,w-6,bh,mur);
+ g.fillStyle=toit;g.beginPath();g.moveTo(0,h-bh);g.lineTo(w/2,h-bh-16-B.w*4);g.lineTo(w,h-bh);g.closePath();g.fill();
+ px(g,w/2-5,h-16,10,14,'#4e342e');
+ px(g,w*.2,h-bh+8,8,8,fonce);px(g,w*.7,h-bh+8,8,8,fonce);
+ if(id==='hdv'){px(g,w/2-2,h-bh-26-B.w*4,4,14,'#5d4037');px(g,w/2+2,h-bh-24-B.w*4,10,7,'#e94560')}
+ if(id==='merveille'){px(g,w/2-3,h-bh-28,6,16,'#ffd54f');px(g,w*.1,h-bh+4,w*.8,4,'#ffd54f')}
+ if(id==='marche')px(g,w*.15,h-bh-6,w*.7,8,'#e8a33d');
+ return c}
+function spriteUnite(type){
+ const c=document.createElement('canvas');c.width=16;c.height=24;const g=c.getContext('2d');
+ const peau='#ffcc80',hab=type==='colon'?'#1976d2':type==='colonne'?'#ab47bc':type==='soldat'?'#c62828':'#3e2723';
+ px(g,5,2,6,5,peau);px(g,4,7,8,9,hab);px(g,3,8,2,6,peau);px(g,11,8,2,6,peau);
+ px(g,5,16,3,6,'#4e342e');px(g,9,16,3,6,'#4e342e');
+ if(type==='soldat'){px(g,13,4,2,12,'#b0bec5');px(g,2,6,2,8,'#8d6e63')}
+ if(type==='barbare'){px(g,4,0,8,3,'#6d4c41');px(g,13,5,3,10,'#5d4037')}
+ return c}
+const SPR={};
+function initSprites(){
+ SPR.herbe=spriteTuile('#4a8f3c','#2e6b24','#63a852');
+ SPR.eau=spriteTuile('#2874c9','#1a4f8f','#4a94e0');
+ SPR.sable=spriteTuile('#d9c47e','#b3985a','#e8d89a');
+ SPR.foret=spriteTuile('#3c7a30','#255220','#4a8f3c');
+ SPR.arbre=spriteArbre();SPR.roche=spriteRocher(false);SPR.or=spriteRocher(true);
+ SPR.feu=(()=>{const c=document.createElement('canvas');c.width=20;c.height=20;const g=c.getContext('2d');
+  px(g,2,14,16,4,'#5d4037');px(g,6,6,8,9,'#ff7043');px(g,8,3,4,7,'#ffca28');return c})();
+ for(const id in BATS)SPR['bat_'+id]=spriteBat(id);
+ for(const t of['colon','colonne','soldat','barbare'])SPR[t]=spriteUnite(t)}
+// ══ CARTE ══
+let carte=[];
+function bruit(x,z,f,s){return Math.sin(x*f+s)*Math.cos(z*f*1.3+s*2)+Math.sin((x+z)*f*.6+s*3)*.5}
+function genCarte(){
+ carte=[];
+ for(let y=0;y<MAP;y++){const l=[];
+  for(let x=0;x<MAP;x++){
+   const b=bruit(x,y,.16,7),c2=bruit(x,y,.3,42);
+   let t='herbe';
+   if(b<-1.15)t='eau';else if(b<-0.95)t='sable';
+   else if(c2>1.1)t='foret';else if(c2<-1.25)t='roche';
+   else if(b>1.25&&c2>0.4)t='or';
+   l.push({t,res:t==='foret'?60:t==='roche'?80:t==='or'?50:0,bat:null})}
+  carte.push(l)}
+ // clairière de départ au centre
+ for(let y=18;y<27;y++)for(let x=18;x<27;x++){carte[y][x].t='herbe';carte[y][x].res=0;carte[y][x].bat=null}
+ // garantir ressources proches
+ carte[17][20].t='foret';carte[17][20].res=60;carte[17][21].t='foret';carte[17][21].res=60;
+ carte[26][19].t='roche';carte[26][19].res=80;carte[25][26].t='or';carte[25][26].res=50}
+function iso(x,y){return[(x-y)*TW/2,(x+y)*TH/2]}
+function deIso(sx,sy){
+ const wx=(sx-cam.x)/ (TW/2), wy=(sy-cam.y)/(TH/2);
+ return[Math.floor((wx+wy)/2),Math.floor((wy-wx)/2)]}
+const cam={x:0,y:0};
+
+// ══ SIMULATION (unités, bâtiments, économie) ══
+const unites=[],batiments=[];
+function compteBat(id){return batiments.filter(b=>b.id===id&&b.fini).length}
+function creerUnite(type,x,y){
+ const u={type,x,y,cx:x,cy:y,tache:'idle',cible:null,sac:0,sacType:null,pv:type==='soldat'?30:type==='barbare'?25:12,t:Math.random()*9};
+ unites.push(u);if(type!=='barbare')S.pop++;majRes();return u}
+function creerBat(id,x,y,fini){
+ const b={id,x,y,fini:!!fini,prog:fini?100:0,pv:BATS[id].pv,file:0};
+ batiments.push(b);
+ for(let dy=0;dy<BATS[id].w;dy++)for(let dx=0;dx<BATS[id].w;dx++)
+  if(carte[y+dy]&&carte[y+dy][x+dx])carte[y+dy][x+dx].bat=b;
+ return b}
+function tuileLibre(x,y,w){
+ for(let dy=0;dy<w;dy++)for(let dx=0;dx<w;dx++){
+  const c=carte[y+dy]&&carte[y+dy][x+dx];
+  if(!c||c.t!=='herbe'||c.bat)return false}
+ return true}
+function payer(cout){
+ for(const k in cout)if((S.res[k]||0)<cout[k])return false;
+ for(const k in cout)S.res[k]-=cout[k];majRes();return true}
+function plusProche(x,y,pred){
+ let best=null,bd=1e9;
+ for(let ty=0;ty<MAP;ty++)for(let tx=0;tx<MAP;tx++){
+  if(!pred(carte[ty][tx],tx,ty))continue;
+  const d=(tx-x)**2+(ty-y)**2;if(d<bd){bd=d;best=[tx,ty]}}
+ return best}
+function tickUnite(u,dt){
+ u.t+=dt;
+ // déplacement vers cible
+ if(u.cible){
+  const dx=u.cible[0]-u.x,dy=u.cible[1]-u.y,d=Math.hypot(dx,dy);
+  if(d>.15){const v=(u.type==='soldat'||u.type==='barbare'?2.6:2.1)*dt;u.x+=dx/d*v;u.y+=dy/d*v;return}
+  u.cible=null}
+ if(u.type==='barbare'){ // attaque le bâtiment le plus proche
+  let bb=null,bd=1e9;
+  for(const b of batiments){const d=(b.x-u.x)**2+(b.y-u.y)**2;if(d<bd){bd=d;bb=b}}
+  const sold=unites.find(s=>s.type==='soldat'&&Math.hypot(s.x-u.x,s.y-u.y)<1.2);
+  if(sold){sold.pv-=4*dt;u.pv-=6*dt;if(u.pv<=0)mortUnite(u);if(sold.pv<=0)mortUnite(sold);return}
+  if(bb){if(bd>1.4)u.cible=[bb.x+.5,bb.y+.5];
+   else{bb.pv-=2*dt;if(bb.pv<=0)detruireBat(bb)}}
+  return}
+ if(u.type==='soldat'){ // intercepte les barbares
+  const bar=unites.find(b2=>b2.type==='barbare');
+  if(bar&&u.tache==='garde'){const d=Math.hypot(bar.x-u.x,bar.y-u.y);
+   if(d>1)u.cible=[bar.x,bar.y]}
+  return}
+ // colon
+ if(u.tache==='recolte'&&u.rc){
+  const[tx,ty]=u.rc,c=carte[ty]&&carte[ty][tx];
+  if(!c||c.res<=0){u.tache='idle';u.rc=null;return}
+  if(Math.hypot(tx+.5-u.x,ty+.5-u.y)>.9){u.cible=[tx+.5,ty+.5];return}
+  if(u.sac>=10){ // dépose au HDV
+   const hdv=batiments.find(b=>b.id==='hdv'&&b.fini);
+   if(hdv){if(Math.hypot(hdv.x+1-u.x,hdv.y+1-u.y)>1.4){u.cible=[hdv.x+1,hdv.y+1];return}
+    S.res[u.sacType]+=u.sac;u.sac=0;majRes();verifQuete()}
+   return}
+  u.sac+=dt*3;u.sacType=c.t==='foret'?'bois':c.t==='or'?'or':'pierre';c.res-=dt*3;
+  if(c.res<=0){c.t=c.t==='foret'?'herbe':'sable';c.res=0}
+  return}
+ if(u.tache==='champ'){
+  const f=batiments.find(b=>b.id==='ferme'&&b.fini);
+  if(!f){u.tache='idle';return}
+  if(Math.hypot(f.x+.5-u.x,f.y+.5-u.y)>.9){u.cible=[f.x+.5,f.y+.5];return}
+  S.res.nour+=dt*2.4;majRes();return}
+ if(u.tache==='chantier'){
+  const b=batiments.find(b2=>!b2.fini);
+  if(!b){u.tache='idle';return}
+  if(Math.hypot(b.x+.5-u.x,b.y+.5-u.y)>1.2){u.cible=[b.x+.5,b.y+.5];return}
+  b.prog+=dt*14;
+  if(b.prog>=100){b.fini=true;u.tache='idle';son(700);toast('✅ '+BATS[b.id].nom+' terminé !');
+   if(b.id==='maison'){S.popMax+=4;majRes()}
+   if(b.id==='merveille'){confettis();parler('MERVEILLE ! Ta civilisation entre dans la légende ! Bravo, immense chef !',true)}
+   verifQuete()}
+  return}}
+function mortUnite(u){const i=unites.indexOf(u);if(i>=0)unites.splice(i,1);
+ if(u.type!=='barbare'){S.pop--;majRes()}}
+function detruireBat(b){const i=batiments.indexOf(b);if(i>=0)batiments.splice(i,1);
+ for(let y=0;y<MAP;y++)for(let x=0;x<MAP;x++)if(carte[y][x].bat===b)carte[y][x].bat=null;
+ toast('💥 '+BATS[b.id].nom+' détruit !')}
+function tickEco(dt){
+ // marché produit de l'or, tours tirent sur les barbares
+ for(const b of batiments){
+  if(!b.fini)continue;
+  if(b.id==='marche')S.res.or+=dt*.5;
+  if(b.id==='tour'){const bar=unites.find(u=>u.type==='barbare'&&Math.hypot(u.x-b.x,u.y-b.y)<5);
+   if(bar){bar.pv-=dt*5;if(bar.pv<=0)mortUnite(bar)}}}
+ // vagues barbares (à partir du Moyen Âge, jamais en baby/novice)
+ if(S.age>=2&&!['baby','novice'].includes(S.diff)){
+  S.vagues+=dt;
+  const freq=180-DIFFICULTES.indexOf(S.diff)*12;
+  if(S.vagues>freq){S.vagues=0;
+   const n=1+Math.floor(DIFFICULTES.indexOf(S.diff)/3);
+   for(let i=0;i<n;i++)creerUnite('barbare',2+i,2);
+   parler('Attention ! Des pillards approchent du nord ! Tes soldats et tes tours vont défendre la cité !',true);
+   toast('⚠️ Pillards au nord !')}}
+ majRes()}
+
+// ══ ENTRÉES (souris, tactile, caméra) ══
+let drag=null,enJeu=false;
+cvs.addEventListener('mousedown',e=>{drag={x:e.clientX,y:e.clientY,cx:cam.x,cy:cam.y,move:false}});
+cvs.addEventListener('mousemove',e=>{if(!drag)return;
+ const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+ if(Math.abs(dx)+Math.abs(dy)>8)drag.move=true;
+ if(drag.move){cam.x=drag.cx+dx;cam.y=drag.cy+dy}});
+cvs.addEventListener('mouseup',e=>{
+ if(drag&&!drag.move)clic(e.clientX,e.clientY,e.button===2);
+ drag=null});
+cvs.addEventListener('contextmenu',e=>{e.preventDefault();clic(e.clientX,e.clientY,true)});
+cvs.addEventListener('touchstart',e=>{const t=e.touches[0];drag={x:t.clientX,y:t.clientY,cx:cam.x,cy:cam.y,move:false}},{passive:true});
+cvs.addEventListener('touchmove',e=>{if(!drag)return;const t=e.touches[0];
+ const dx=t.clientX-drag.x,dy=t.clientY-drag.y;
+ if(Math.abs(dx)+Math.abs(dy)>10)drag.move=true;
+ if(drag.move){cam.x=drag.cx+dx;cam.y=drag.cy+dy}e.preventDefault()},{passive:false});
+cvs.addEventListener('touchend',e=>{
+ if(drag&&!drag.move){const t=e.changedTouches[0];clic(t.clientX,t.clientY,false)}
+ drag=null});
+addEventListener('keydown',e=>{const v=30;
+ if(e.key==='ArrowLeft'||e.key==='q')cam.x+=v;if(e.key==='ArrowRight'||e.key==='d')cam.x-=v;
+ if(e.key==='ArrowUp'||e.key==='z')cam.y+=v;if(e.key==='ArrowDown'||e.key==='s')cam.y-=v;
+ if(e.key==='Escape'){S.placer=null;S.sel=null;majActions()}});
+function clic(sx,sy,droit){
+ const[tx,ty]=deIso(sx,sy);
+ if(tx<0||ty<0||tx>=MAP||ty>=MAP)return;
+ const c=carte[ty][tx];
+ // pose de bâtiment
+ if(S.placer){
+  const B=BATS[S.placer];
+  if(!tuileLibre(tx,ty,B.w)){toast('❌ Terrain occupé — choisis de l\'herbe libre');return}
+  if(!S.creatif&&!payer(B.cout)){toast('❌ Ressources insuffisantes');return}
+  const b=creerBat(S.placer,tx,ty,S.creatif);
+  if(!S.creatif){const col=unites.find(u=>u.type==='colon'||u.type==='colonne');
+   if(col){col.tache='chantier';col.cible=[tx+.5,ty+.5]}
+   parler('Chantier lancé ! Un colon vient construire, pierre par pierre.')}
+  son(600);S.placer=null;majActions();verifQuete();return}
+ // mode créatif : terraformer
+ if(S.creatif){
+  if(droit){c.t='eau';c.res=0}
+  else{const cycle=['herbe','foret','roche','or','sable'];
+   c.t=cycle[(cycle.indexOf(c.t)+1)%cycle.length];c.res=c.t==='foret'?60:c.t==='roche'?80:c.t==='or'?50:0}
+  son(500);return}
+ // clic sur unité ?
+ for(const u of unites){
+  const[ux,uy]=iso(u.x,u.y);
+  if(Math.abs(ux+cam.x-sx)<18&&Math.abs(uy+cam.y-sy)<26&&u.type!=='barbare'){
+   S.sel=u;son(660);majActions();verifQuete();return}}
+ // clic sur bâtiment ?
+ if(c.bat){S.sel=c.bat;son(660);majActions();return}
+ // ordre à l'unité sélectionnée
+ if(S.sel&&S.sel.type&&(S.sel.type==='colon'||S.sel.type==='colonne')){
+  if(c.t==='foret'||c.t==='roche'||c.t==='or'){S.sel.tache='recolte';S.sel.rc=[tx,ty];S.sel.cible=[tx+.5,ty+.5];
+   toast('⛏️ Au travail !');son(520);verifQuete();return}
+  if(c.bat&&c.bat.id==='ferme'&&c.bat.fini){S.sel.tache='champ';toast('🌾 Aux champs !');return}
+  S.sel.tache='idle';S.sel.cible=[tx+.5,ty+.5];son(480);return}
+ if(S.sel&&S.sel.type==='soldat'){S.sel.cible=[tx+.5,ty+.5];S.sel.tache='garde';return}}
+
+// ══ RENDU ══
+function rendre(){
+ cvs.width=innerWidth;cvs.height=innerHeight;
+ const g=ctx;g.imageSmoothingEnabled=false;
+ g.fillStyle='#12203a';g.fillRect(0,0,cvs.width,cvs.height);
+ for(let y=0;y<MAP;y++)for(let x=0;x<MAP;x++){
+  const[ix,iy]=iso(x,y),X=ix+cam.x,Y=iy+cam.y;
+  if(X<-TW||Y<-80||X>cvs.width||Y>cvs.height+40)continue;
+  const c=carte[y][x];
+  g.drawImage(SPR[c.t==='foret'?'foret':c.t==='roche'||c.t==='or'?'herbe':c.t],X-TW/2,Y);
+  if(c.t==='foret')g.drawImage(SPR.arbre,X-16,Y-28);
+  if(c.t==='roche')g.drawImage(SPR.roche,X-16,Y-8);
+  if(c.t==='or')g.drawImage(SPR.or,X-16,Y-8)}
+ // bâtiments + unités triés par profondeur
+ const objs=[];
+ for(const b of batiments)objs.push({d:b.x+b.y+BATS[b.id].w,b});
+ for(const u of unites)objs.push({d:u.x+u.y,u});
+ objs.sort((a,b2)=>a.d-b2.d);
+ for(const o of objs){
+  if(o.b){const b=o.b,sp=SPR['bat_'+b.id],[ix,iy]=iso(b.x+BATS[b.id].w/2-.5,b.y+BATS[b.id].w/2-.5);
+   const X=ix+cam.x,Y=iy+cam.y;
+   g.globalAlpha=b.fini?1:.45+b.prog/220;
+   g.drawImage(sp,X-sp.width/2,Y-sp.height+TH/2);g.globalAlpha=1;
+   if(!b.fini){px(g,X-24,Y+6,48,6,'#00000088');px(g,X-23,Y+7,46*b.prog/100,4,'#3dba6f')}
+   if(S.sel===b){g.strokeStyle='#e8a33d';g.lineWidth=2;g.strokeRect(X-sp.width/2,Y-sp.height+TH/2,sp.width,sp.height)}}
+  else{const u=o.u,[ix,iy]=iso(u.x-.5,u.y-.5),X=ix+cam.x,Y=iy+cam.y;
+   const bob=Math.sin(u.t*6)*(u.cible?2:0);
+   g.drawImage(SPR[u.type],X-8,Y-20+bob,16,24);
+   if(u.sac>0)px(g,X-2,Y-24+bob,5,4,u.sacType==='bois'?'#8d6e63':u.sacType==='or'?'#ffd54f':'#90a4ae');
+   if(S.sel===u){g.strokeStyle='#e8a33d';g.lineWidth=2;g.beginPath();g.ellipse(X,Y+4,12,6,0,0,7);g.stroke()}}}
+ // feu de camp au centre de départ
+ const[fx,fy]=iso(22,22);g.drawImage(SPR.feu,fx+cam.x-10,fy+cam.y-8)}
+// ══ UI ══
+function majRes(){
+ document.getElementById('rBois').textContent=Math.floor(S.res.bois);
+ document.getElementById('rNour').textContent=Math.floor(S.res.nour);
+ document.getElementById('rPierre').textContent=Math.floor(S.res.pierre);
+ document.getElementById('rOr').textContent=Math.floor(S.res.or);
+ document.getElementById('rPop').textContent=S.pop+'/'+S.popMax}
+function majActions(){
+ const a=document.getElementById('actions'),info=document.getElementById('selInfo');
+ a.innerHTML='';
+ if(S.sel&&S.sel.id){ // bâtiment
+  const b=S.sel,B=BATS[b.id];
+  info.textContent=B.emoji+' '+B.nom+(b.fini?'':' (en chantier '+Math.floor(b.prog)+'%)');
+  info.classList.remove('hidden');
+  if(b.id==='hdv'&&b.fini)ajAct(a,'👶 Colon','50 🍞',()=>{
+   if(S.pop>=S.popMax){toast('❌ Construis des maisons !');return}
+   if(!payer({nour:50})){toast('❌ Pas assez de nourriture');return}
+   creerUnite(Math.random()<.5?'colon':'colonne',b.x+1,b.y+2.2);son(700);verifQuete()});
+  if(b.id==='caserne'&&b.fini)ajAct(a,'⚔️ Soldat','60 🍞 20 ✨',()=>{
+   if(S.pop>=S.popMax){toast('❌ Construis des maisons !');return}
+   if(!payer({nour:60,or:20})){toast('❌ Ressources insuffisantes');return}
+   const s=creerUnite('soldat',b.x+1,b.y+2.2);s.tache='garde';son(700)})}
+ else if(S.sel){info.textContent=(S.sel.type==='soldat'?'⚔️ Soldat':'👷 Colon '+(S.sel.tache==='idle'?'(au repos)':'('+S.sel.tache+')'));
+  info.classList.remove('hidden')}
+ else info.classList.add('hidden');
+ // menu construction
+ for(const id in BATS){
+  const B=BATS[id];
+  if(B.age>S.age)continue;
+  const cout=Object.entries(B.cout).map(([k,v])=>v+({bois:'🌲',nour:'🍞',pierre:'⛰️',or:'✨'}[k])).join(' ');
+  ajAct(a,B.emoji+' '+B.nom,S.creatif?'gratuit':cout,()=>{S.placer=id;toast('👆 Clique sur l\'herbe pour placer : '+B.nom);
+   parler(B.nom+'. '+B.desc)},B.age>S.age)}}
+function ajAct(parent,titre,sous,cb,off){
+ const d=document.createElement('button');d.className='act'+(off?' off':'');
+ d.innerHTML=titre+'<small>'+sous+'</small>';d.onclick=cb;parent.appendChild(d)}
+// ══ MAESTRO, ÂGES, QUÊTES, VOIX ══
+let audioCtx;
+function son(f){try{audioCtx=audioCtx||new (window.AudioContext||webkitAudioContext)();
+ const o=audioCtx.createOscillator(),g2=audioCtx.createGain();o.connect(g2);g2.connect(audioCtx.destination);
+ o.frequency.value=f;g2.gain.setValueAtTime(.1,audioCtx.currentTime);
+ g2.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+.22);o.start();o.stop(audioCtx.currentTime+.22)}catch(e){}}
+function parler(txt,maestro){try{speechSynthesis.cancel();
+ const u=new SpeechSynthesisUtterance(txt);u.lang='fr-FR';
+ const v=speechSynthesis.getVoices().filter(x=>x.lang.startsWith('fr'));
+ if(maestro){u.rate=.85;u.pitch=.9;u.voice=v.find(x=>/henri|paul|thierry|male/i.test(x.name))||v[0]}
+ else{u.rate=.95;u.voice=v.find(x=>/denise|eloise|female/i.test(x.name))||v[0]}
+ speechSynthesis.speak(u)}catch(e){}}
+function toast(t){const el=document.getElementById('toast');el.textContent=t;el.style.opacity=1;
+ setTimeout(()=>el.style.opacity=0,2600)}
+function confettis(){for(let i=0;i<24;i++){const c=document.createElement('div');c.className='confetti';
+ c.textContent=['🎉','⭐','🏆','💛'][i%4];c.style.left=Math.random()*100+'vw';c.style.top='-30px';
+ document.body.appendChild(c);setTimeout(()=>c.remove(),2400)}}
+function bulle(qui,txt,choix){const b=document.getElementById('bulle');
+ b.innerHTML='<div class="qui">'+qui+'</div><div class="txt">'+txt+'</div><div class="choix"></div>';
+ const ch=b.querySelector('.choix');
+ (choix||[]).forEach(([n,f])=>{const bt=document.createElement('button');bt.textContent=n;bt.onclick=f;ch.appendChild(bt)});
+ b.classList.remove('hidden')}
+function fermerBulle(){document.getElementById('bulle').classList.add('hidden')}
+function maestroHistoire(){const A=AGES[S.age];
+ bulle('🎻 Maestro — '+A.emoji+' '+A.nom,A.histoire,
+  [['🔁 Répète',()=>parler(A.histoire,true)],['🎯 Ma mission',()=>{fermerBulle();maestroMission()}],['✅ Compris !',fermerBulle]]);
+ parler(A.histoire,true)}
+function maestroMission(){const q=QUETES[S.quete];
+ if(!q)return;
+ bulle('🎻 Maestro',q.dit,[['🔁 Répète',()=>parler(q.dit,true)],['✅ Compris !',fermerBulle]]);
+ parler(q.dit,true)}
+function verifQuete(){const q=QUETES[S.quete];if(!q||!q.test())return;
+ S.quete++;confettis();son(880);setTimeout(()=>son(1100),150);
+ toast('⭐ Étape réussie !');
+ const s2=QUETES[S.quete];
+ if(s2)parler('Bravo ! '+s2.dit,true);
+ majObjectif()}
+function majObjectif(){const q=QUETES[S.quete];
+ document.getElementById('objectif').textContent=q?('🎯 '+q.txt):'🏆 Toutes les missions accomplies — règne sur ton empire !'}
+function passerAge(){
+ if(S.age>=AGES.length-1){toast('Tu es déjà à l\'ère la plus avancée !');return}
+ const A=AGES[S.age+1];
+ if(!S.creatif&&!payer(A.cout)){
+  toast('❌ Il faut : '+Object.entries(A.cout).map(([k,v])=>v+({bois:'🌲',nour:'🍞',pierre:'⛰️',or:'✨'}[k])).join(' '));return}
+ S.age++;confettis();son(880);setTimeout(()=>son(1320),250);
+ document.getElementById('ageNom').textContent=A.nom;
+ for(const id in BATS)SPR['bat_'+id]=spriteBat(id,A.teinte);
+ majActions();verifQuete();maestroHistoire()}
+document.getElementById('ageBox').onclick=passerAge;
+document.getElementById('btnCreatif').onclick=function(){S.creatif=!S.creatif;
+ this.classList.toggle('on',S.creatif);
+ toast(S.creatif?'🧱 Mode créatif : constructions gratuites et instantanées, clic sur le sol = changer le terrain':'Mode normal');
+ majActions()};
+// vocal
+let reco=null;
+document.getElementById('btnMicro').onclick=function(){
+ if(S.micro){S.micro=false;try{reco.stop()}catch(e){};this.classList.remove('on');return}
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){toast('Vocal non supporté ici');return}
+ reco=new SR();reco.lang='fr-FR';reco.continuous=true;
+ reco.onresult=e=>{const t=e.results[e.results.length-1][0].transcript.toLowerCase();
+  if(t.includes('histoire')||t.includes('maestro'))maestroHistoire();
+  else if(t.includes('mission'))maestroMission();
+  else if(t.includes('âge')||t.includes('age'))passerAge();
+  else if(t.includes('créatif'))document.getElementById('btnCreatif').click()};
+ reco.onend=()=>{if(S.micro)try{reco.start()}catch(e){}};
+ reco.start();S.micro=true;this.classList.add('on');
+ toast('🎤 Dis : histoire, mission, âge, créatif');parler('Je t\'écoute, chef !')};
+function menuTitre(){enJeu=false;document.getElementById('ecranTitre').classList.remove('hidden');
+ document.getElementById('ui').classList.add('hidden');fermerBulle()}
+// ══ ÉCRAN TITRE & BOUCLE ══
+function carte2(parent,html,cb,cls){const d=document.createElement('div');d.className=cls;
+ d.innerHTML=html;d.onclick=()=>{[...parent.children].forEach(c=>c.classList.remove('sel'));d.classList.add('sel');cb();
+  document.getElementById('btnJouer').disabled=!S.profil};parent.appendChild(d)}
+PROFILS.forEach(p=>carte2(document.getElementById('profils'),
+ '<div class="emoji">'+p.emoji+'</div><div class="nom">'+p.nom+'</div><div class="desc">'+p.desc+'</div>',()=>S.profil=p.id,'carte'));
+DIFFICULTES.forEach(d=>carte2(document.getElementById('difficultes'),d,()=>S.diff=d,'pill'));
+document.getElementById('btnJouer').onclick=()=>{
+ document.getElementById('ecranTitre').classList.add('hidden');
+ document.getElementById('ui').classList.remove('hidden');
+ if(!enJeu&&unites.length===0){
+  initSprites();genCarte();
+  creerBat('hdv',20,20,true);
+  creerUnite('colon',22.5,22.5);creerUnite('colonne',21.5,23);creerUnite('colon',23,21.5);
+  const[ix,iy]=iso(22,22);cam.x=innerWidth/2-ix;cam.y=innerHeight/2-iy-40}
+ enJeu=true;majRes();majActions();majObjectif();
+ setTimeout(()=>{parler('Bienvenue, chef '+(PROFILS.find(p=>p.id===S.profil)||{}).nom+' !',false);
+  setTimeout(maestroHistoire,1800)},400)};
+let tPrec=0;
+function boucle(t){requestAnimationFrame(boucle);
+ const dt=Math.min(.05,(t-tPrec)/1000||.016);tPrec=t;
+ if(!enJeu)return;
+ for(const u of unites)tickUnite(u,dt);
+ tickEco(dt);rendre()}
+boucle();
+speechSynthesis&&speechSynthesis.getVoices();
+if(location.search.includes('test=1')){S.profil='papa';
+ setTimeout(()=>{document.getElementById('btnJouer').disabled=false;document.getElementById('btnJouer').click()},200)}
+
+</script>
+</body>
+</html>
