@@ -75,6 +75,7 @@ h2{color:var(--or);margin:10px 0 4px;font-size:17px}
 </div>
 <div id="bulle" class="bulle hidden"></div>
 <div id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 // ══ DIAGNOSTIC ══
 window.onerror=function(m,s,l){let d=document.getElementById('errbox');
@@ -113,9 +114,41 @@ const QUETES=[
  {txt:'🏆 Continue jusqu\'à la Merveille ! (âges, marché, caserne...)',test:()=>compteBat('merveille')>=1,dit:'À toi de jouer : traverse les âges, bâtis un marché, une caserne, des tours... et un jour, ta Merveille !'}];
 
 // ══ SPRITES PIXEL ART (procéduraux, palette rétro) ══
-const TW=64,TH=32,MAP=44;
-const cvs=document.createElement('canvas');document.body.appendChild(cvs);
-const ctx=cvs.getContext('2d');ctx.imageSmoothingEnabled=false;
+const MAP=44;
+// ══ MOTEUR 3D ══
+let scene,camera,renderer,rayc,solIM,selRing,sunRef;
+const decors3D=new Map();
+const cam={tx:22,tz:22};
+const VD=16; // demi-hauteur du cadre ortho
+function init3D(){
+ if(scene)return;
+ scene=new THREE.Scene();scene.background=new THREE.Color(0x101c30);
+ renderer=new THREE.WebGLRenderer({antialias:true});
+ renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));
+ renderer.setSize(innerWidth,innerHeight);
+ renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+ document.body.insertBefore(renderer.domElement,document.body.firstChild);
+ camera=new THREE.OrthographicCamera(-VD*innerWidth/innerHeight,VD*innerWidth/innerHeight,VD,-VD,.1,200);
+ scene.add(new THREE.HemisphereLight(0xc8d8ea,0x4a5f3d,.55));
+ sunRef=new THREE.DirectionalLight(0xffeecb,1.0);
+ sunRef.position.set(30,42,18);sunRef.castShadow=true;
+ sunRef.shadow.mapSize.set(2048,2048);
+ sunRef.shadow.camera.left=-30;sunRef.shadow.camera.right=30;
+ sunRef.shadow.camera.top=30;sunRef.shadow.camera.bottom=-30;sunRef.shadow.camera.far=140;
+ scene.add(sunRef);scene.add(sunRef.target);
+ rayc=new THREE.Raycaster();
+ selRing=new THREE.Mesh(new THREE.TorusGeometry(.55,.07,8,24),
+  new THREE.MeshBasicMaterial({color:0xffd54f}));
+ selRing.rotation.x=-Math.PI/2;selRing.visible=false;scene.add(selRing);
+ initInput();
+ addEventListener('resize',()=>{renderer.setSize(innerWidth,innerHeight);
+  camera.left=-VD*innerWidth/innerHeight;camera.right=VD*innerWidth/innerHeight;
+  camera.updateProjectionMatrix()})}
+function majCamera(){
+ camera.position.set(cam.tx+16,20,cam.tz+16);camera.lookAt(cam.tx,0,cam.tz);
+ sunRef.position.set(cam.tx+18,34,cam.tz+8);sunRef.target.position.set(cam.tx,0,cam.tz)}
+function M(geo,couleur){const m=new THREE.Mesh(geo,new THREE.MeshLambertMaterial({color:couleur}));
+ m.castShadow=true;return m}
 function px(g,x,y,w,h,c){g.fillStyle=c;g.fillRect(x,y,w,h)}
 function spriteTuile(base,fonce,motif,dense){
  const c=document.createElement('canvas');c.width=TW;c.height=TH;const g=c.getContext('2d');
@@ -240,11 +273,136 @@ function spriteUnite(type,frame){
   px(g,19,16,3,10,'#6d4c41');px(g,18,14,5,4,'#4a332c')} // massue
  return c}
 const SPR={};
-function initSprites(){
- SPR.herbe0=spriteTuile('#4a8f3c','#2e6b24','#63a852');       // herbe verte
- SPR.herbe1=spriteTuile('#7a9440','#5a7028','#96ad55');       // herbe sèche
- SPR.herbe2=spriteTuile('#9c8a52','#78683a','#b3a068',90);    // terre battue
- SPR.herbe=SPR.herbe0;
+// ══ CONSTRUCTION DU MONDE 3D ══
+function couleurTuile(c){
+ return c.t==='eau'?'#1c5a9e':c.t==='sable'?'#c4ad6e':c.t==='foret'?'#2c5f28':
+  c.t==='roche'||c.t==='or'?'#417d36':['#417d36','#6a8039','#8a7a49'][c.gv||0]}
+function majTuile(x,y){
+ const c=carte[y][x];
+ solIM.setColorAt(y*MAP+x,new THREE.Color(couleurTuile(c)));
+ solIM.instanceColor.needsUpdate=true;majDecor(x,y)}
+function majDecor(x,y){
+ const k=x+','+y,c=carte[y][x];
+ const old=decors3D.get(k);if(old){scene.remove(old);decors3D.delete(k)}
+ let g=null;
+ if(c.t==='foret')g=c.v==='palmier'?palm3D():c.v==='pin'?pin3D():arbre3D();
+ else if(c.t==='roche')g=roche3D(false);else if(c.t==='or')g=roche3D(true);
+ else if(c.dec==='palmier')g=palm3D();
+ if(g){g.position.set(x,c.h,y);g.rotation.y=(x*7+y*13)%6;scene.add(g);decors3D.set(k,g)}}
+function arbre3D(){const g=new THREE.Group();
+ const t=M(new THREE.CylinderGeometry(.08,.13,.7,6),0x5d4037);t.position.y=.35;g.add(t);
+ for(const[dx,dy,dz,r,c]of[[0,.95,0,.42,0x2a6330],[.26,.75,.15,.3,0x3d8a40],
+  [-.26,.8,-.1,.3,0x1e4d20],[0,1.22,0,.26,0x57a65c]])
+  {const s=M(new THREE.SphereGeometry(r,7,6),c);s.position.set(dx,dy,dz);g.add(s)}
+ return g}
+function pin3D(){const g=new THREE.Group();
+ const t=M(new THREE.CylinderGeometry(.07,.1,.5,6),0x4e342e);t.position.y=.25;g.add(t);
+ for(let i=0;i<3;i++){const c=M(new THREE.ConeGeometry(.44-i*.12,.52,7),i%2?0x14421f:0x1b5e20);
+  c.position.y=.62+i*.34;g.add(c)}
+ return g}
+function palm3D(){const g=new THREE.Group();
+ const t=M(new THREE.CylinderGeometry(.06,.1,1.15,6),0x8d6e4b);t.position.y=.57;t.rotation.z=.12;g.add(t);
+ for(let i=0;i<6;i++){const f=M(new THREE.ConeGeometry(.09,.9,4),0x3f9142);
+  const a=i/6*Math.PI*2;f.position.set(Math.cos(a)*.34+.12,1.18,Math.sin(a)*.34);
+  f.rotation.set(Math.sin(a)*1.25,0,Math.cos(a)*1.25);g.add(f)}
+ return g}
+function roche3D(or){const g=new THREE.Group();
+ const r=M(new THREE.DodecahedronGeometry(.36,0),or?0x8d6e63:0x78909c);r.position.y=.18;r.scale.y=.62;g.add(r);
+ const r2=M(new THREE.DodecahedronGeometry(.2,0),or?0xffd54f:0x90a4ae);r2.position.set(.32,.12,.16);g.add(r2);
+ return g}
+function initSprites(){ // nom conservé : construit désormais le monde 3D
+ const geo=new THREE.BoxGeometry(1,.5,1);
+ solIM=new THREE.InstancedMesh(geo,new THREE.MeshLambertMaterial({color:0xffffff}),MAP*MAP);
+ solIM.receiveShadow=true;
+ const m4=new THREE.Matrix4(),col=new THREE.Color();
+ for(let y=0;y<MAP;y++)for(let x=0;x<MAP;x++){
+  const c=carte[y][x];
+  c.h=c.t==='eau'?-.3:Math.abs(bruit(x,y,.13,3))*.32;
+  m4.setPosition(x,c.h-.25,y);
+  solIM.setMatrixAt(y*MAP+x,m4);
+  solIM.setColorAt(y*MAP+x,col.set(couleurTuile(c)))}
+ solIM.instanceColor.needsUpdate=true;scene.add(solIM);
+ const eau=new THREE.Mesh(new THREE.PlaneGeometry(MAP+16,MAP+16),
+  new THREE.MeshLambertMaterial({color:0x2f7fd0,transparent:true,opacity:.8}));
+ eau.rotation.x=-Math.PI/2;eau.position.set(MAP/2,-.08,MAP/2);scene.add(eau);
+ for(let y=0;y<MAP;y++)for(let x=0;x<MAP;x++)majDecor(x,y);
+ for(const a of animaux){a.mesh=gazelle3D();scene.add(a.mesh)}}
+function unite3D(type,u){
+ const g=new THREE.Group();
+ const P={colon:0x2f6fb8,colonne:0x9c4bb5,soldat:0xb03030,barbare:0x5d4037}[type];
+ const torse=M(new THREE.BoxGeometry(.3,.36,.2),P);torse.position.y=.52;g.add(torse);
+ const tete=M(new THREE.BoxGeometry(.2,.2,.2),0xeebd82);tete.position.y=.82;g.add(tete);
+ const chev=M(new THREE.BoxGeometry(.22,.08,.22),type==='soldat'?0x78909c:0x4a332c);chev.position.y=.94;g.add(chev);
+ const j1=M(new THREE.BoxGeometry(.1,.32,.12),0x6d5638);j1.position.set(-.08,.17,0);g.add(j1);
+ const j2=M(new THREE.BoxGeometry(.1,.32,.12),0x6d5638);j2.position.set(.08,.17,0);g.add(j2);
+ if(type==='soldat'){
+  const l=M(new THREE.CylinderGeometry(.02,.02,.95,5),0x8d6e63);l.position.set(.2,.62,0);g.add(l);
+  const pl=M(new THREE.BoxGeometry(.06,.14,.06),0xc62828);pl.position.y=1.03;g.add(pl);
+  const bo=M(new THREE.CylinderGeometry(.14,.14,.04,10),0x8a5a2a);
+  bo.rotation.z=Math.PI/2;bo.position.set(-.2,.55,0);g.add(bo)}
+ if(type==='colonne')torse.scale.set(1.1,1.2,1.1);
+ if(type==='barbare'){chev.scale.set(1.3,1.6,1.3);
+  const ma=M(new THREE.CylinderGeometry(.05,.09,.4,6),0x4a332c);ma.position.set(.22,.5,0);g.add(ma)}
+ g.userData={jambes:[j1,j2],unite:u};
+ g.traverse(o=>o.userData.unite=u);
+ return g}
+function gazelle3D(){const g=new THREE.Group();
+ const corps=M(new THREE.BoxGeometry(.44,.22,.2),0xc99b64);corps.position.y=.35;g.add(corps);
+ const cou=M(new THREE.BoxGeometry(.1,.26,.12),0xc99b64);cou.position.set(.2,.52,0);g.add(cou);
+ const tete=M(new THREE.BoxGeometry(.17,.11,.12),0xb3874f);tete.position.set(.26,.65,0);g.add(tete);
+ for(const s of[-1,1]){const co=M(new THREE.CylinderGeometry(.012,.02,.15,4),0x6d4c2f);
+  co.position.set(.23,.76,s*.04);g.add(co)}
+ const pattes=[];
+ for(const[qx,qz]of[[-.16,-.06],[-.16,.06],[.15,-.06],[.15,.06]]){
+  const p=M(new THREE.BoxGeometry(.05,.28,.05),0xa87f4f);p.position.set(qx,.12,qz);g.add(p);pattes.push(p)}
+ g.userData.jambes=pattes;return g}
+function bat3D(b){
+ if(!scene)return;
+ const g=new THREE.Group(),B=BATS[b.id],w=B.w;
+ const teinte=S.age>=2&&(b.id==='maison'||b.id==='hdv')?0xefe6d0:[0x9c8a6a,0xc9b178,0x9aa3b0,0xb98d5e,0x8d99ab][Math.min(S.age,4)];
+ if(b.id==='hdv'&&S.age===0){
+  const sol2=M(new THREE.CylinderGeometry(1.5,1.5,.1,16),0x9c8a52);sol2.position.y=.05;sol2.receiveShadow=true;g.add(sol2);
+  const feu=M(new THREE.ConeGeometry(.2,.45,6),0xff7043);feu.position.y=.35;g.add(feu);
+  const braise=M(new THREE.CylinderGeometry(.28,.3,.12,8),0x5d4037);braise.position.y=.1;g.add(braise);
+  for(const a of[.6,2.3,3.9]){const os=M(new THREE.TorusGeometry(.5,.05,6,10,Math.PI),0xe8e0cc);
+   os.position.set(Math.cos(a)*1.0,.08,Math.sin(a)*1.0);os.rotation.y=-a;g.add(os)}
+  const tot=M(new THREE.CylinderGeometry(.05,.07,1.2,6),0x6d4c2f);tot.position.set(-.7,.6,.5);g.add(tot);
+  const dr=M(new THREE.BoxGeometry(.36,.22,.02),0xc62828);dr.position.set(-.5,1.05,.5);g.add(dr)}
+ else if(b.id==='ferme'){
+  const terre=M(new THREE.BoxGeometry(1,.06,1),0x795548);terre.position.y=.05;g.add(terre);
+  for(let i=0;i<4;i++){const rang=M(new THREE.BoxGeometry(.9,.12,.14),i%2?0xe9c94a:0xc9a227);
+   rang.position.set(0,.12,-.34+i*.22);g.add(rang)}}
+ else if(b.id==='tour'){
+  const t=M(new THREE.CylinderGeometry(.34,.44,1.7,10),0x9aa3b0);t.position.y=.85;g.add(t);
+  for(let i=0;i<6;i++){const cr=M(new THREE.BoxGeometry(.15,.15,.15),0x8a93a5);
+   const a=i/6*Math.PI*2;cr.position.set(Math.cos(a)*.34,1.78,Math.sin(a)*.34);g.add(cr)}
+  const mat2=M(new THREE.CylinderGeometry(.02,.02,.55,4),0x6d4c2f);mat2.position.y=2.0;g.add(mat2);
+  const dr=M(new THREE.BoxGeometry(.3,.18,.02),0xc62828);dr.position.y=2.2;g.add(dr)}
+ else if(b.id==='marche'){
+  for(let i=0;i<3;i++){const X=-.7+i*.7;
+   const et=M(new THREE.BoxGeometry(.46,.32,.42),0xc19a6b);et.position.set(X,.18,0);g.add(et);
+   const av=M(new THREE.BoxGeometry(.54,.05,.54),[0xe53935,0xfdd835,0x1e88e5][i]);av.position.set(X,.66,0);g.add(av);
+   const pied=M(new THREE.CylinderGeometry(.03,.03,.62,4),0x6d4c2f);pied.position.set(X,.33,.22);g.add(pied)}}
+ else if(b.id==='merveille'){
+  for(let i=0;i<4;i++){const et=M(new THREE.BoxGeometry(2.5-i*.58,.42,2.5-i*.58),i===3?0xffd54f:0xd9c47e);
+   et.position.y=.21+i*.42;g.add(et)}}
+ else{
+  const haut=b.id==='hdv'?1.15:.8,larg=w*.92;
+  const corps=M(new THREE.BoxGeometry(larg,haut,larg*.8),teinte);corps.position.y=haut/2;g.add(corps);
+  const toit=M(new THREE.ConeGeometry(larg*.78,.62,4),b.id==='caserne'?0x8a93a5:0x8d3b2f);
+  toit.position.y=haut+.3;toit.rotation.y=Math.PI/4;g.add(toit);
+  const porte=M(new THREE.BoxGeometry(.22,.36,.04),0x4e342e);porte.position.set(0,.18,larg*.4);g.add(porte);
+  if(S.age>=2&&(b.id==='maison'||b.id==='hdv'))
+   for(const dx of[-larg/2+.06,0,larg/2-.06]){
+    const p=M(new THREE.BoxGeometry(.07,haut,.07),0x5d4037);p.position.set(dx,haut/2,larg*.41);g.add(p)}
+  if(b.id==='caserne'||b.id==='hdv'){
+   const mat2=M(new THREE.CylinderGeometry(.02,.02,.6,4),0x6d4c2f);mat2.position.y=haut+.62;g.add(mat2);
+   const dr=M(new THREE.BoxGeometry(.32,.2,.02),0xc62828);dr.position.y=haut+.8;g.add(dr)}}
+ g.position.set(b.x+w/2-.5,carte[b.y][b.x].h,b.y+w/2-.5);
+ g.traverse(o=>o.userData.bat=b);
+ scene.add(g);b.mesh=g;majProgres(b)}
+function majProgres(b){if(b.mesh)b.mesh.scale.y=b.fini?1:.2+b.prog/100*.8}
+function _spritesMorts(){
  SPR.eau=spriteTuile('#2874c9','#1a4f8f','#4a94e0');
  SPR.sable=spriteTuile('#d9c47e','#b3985a','#e8d89a');
  SPR.foret=spriteTuile('#3c7a30','#255220','#4a8f3c');
@@ -286,11 +444,7 @@ function genCarte(){
  // garantir ressources proches
  carte[17][20].t='foret';carte[17][20].res=60;carte[17][21].t='foret';carte[17][21].res=60;
  carte[26][19].t='roche';carte[26][19].res=80;carte[25][26].t='or';carte[25][26].res=50}
-function iso(x,y){return[(x-y)*TW/2,(x+y)*TH/2]}
-function deIso(sx,sy){
- const wx=(sx-cam.x)/ (TW/2), wy=(sy-cam.y)/(TH/2);
- return[Math.floor((wx+wy)/2),Math.floor((wy-wx)/2)]}
-const cam={x:0,y:0};
+// (projection 2D supprimée — remplacée par le rendu 3D)
 
 // ══ SIMULATION (unités, bâtiments, économie) ══
 const unites=[],batiments=[],animaux=[];
@@ -307,7 +461,7 @@ function creerUnite(type,x,y){
  unites.push(u);if(type!=='barbare')S.pop++;majRes();return u}
 function creerBat(id,x,y,fini){
  const b={id,x,y,fini:!!fini,prog:fini?100:0,pv:BATS[id].pv,file:0};
- batiments.push(b);
+ batiments.push(b);bat3D(b);
  for(let dy=0;dy<BATS[id].w;dy++)for(let dx=0;dx<BATS[id].w;dx++)
   if(carte[y+dy]&&carte[y+dy][x+dx])carte[y+dy][x+dx].bat=b;
  return b}
@@ -356,7 +510,7 @@ function tickUnite(u,dt){
     S.res[u.sacType]+=u.sac;u.sac=0;majRes();verifQuete()}
    return}
   u.sac+=dt*3;u.sacType=c.t==='foret'?'bois':c.t==='or'?'or':'pierre';c.res-=dt*3;
-  if(c.res<=0){c.t=c.t==='foret'?'herbe':'sable';c.res=0}
+  if(c.res<=0){c.t=c.t==='foret'?'herbe':'sable';c.res=0;c.v=null;c.dec=null;majTuile(tx,ty)}
   return}
  if(u.tache==='champ'){
   const f=batiments.find(b=>b.id==='ferme'&&b.fini);
@@ -367,15 +521,19 @@ function tickUnite(u,dt){
   const b=batiments.find(b2=>!b2.fini);
   if(!b){u.tache='idle';return}
   if(Math.hypot(b.x+.5-u.x,b.y+.5-u.y)>1.2){u.cible=[b.x+.5,b.y+.5];return}
-  b.prog+=dt*14;
-  if(b.prog>=100){b.fini=true;u.tache='idle';son(700);toast('✅ '+BATS[b.id].nom+' terminé !');
+  b.prog+=dt*14;majProgres(b);
+  if(b.prog>=100){b.fini=true;u.tache='idle';son(700);majProgres(b);toast('✅ '+BATS[b.id].nom+' terminé !');
    if(b.id==='maison'){S.popMax+=4;majRes()}
    if(b.id==='merveille'){confettis();parler('MERVEILLE ! Ta civilisation entre dans la légende ! Bravo, immense chef !',true)}
    verifQuete()}
   return}}
 function mortUnite(u){const i=unites.indexOf(u);if(i>=0)unites.splice(i,1);
+ if(u.mesh)scene.remove(u.mesh);
+ if(S.sel===u){S.sel=null;majActions()}
  if(u.type!=='barbare'){S.pop--;majRes()}}
 function detruireBat(b){const i=batiments.indexOf(b);if(i>=0)batiments.splice(i,1);
+ if(b.mesh)scene.remove(b.mesh);
+ if(S.sel===b){S.sel=null;majActions()}
  for(let y=0;y<MAP;y++)for(let x=0;x<MAP;x++)if(carte[y][x].bat===b)carte[y][x].bat=null;
  toast('💥 '+BATS[b.id].nom+' détruit !')}
 function tickEco(dt){
@@ -396,31 +554,41 @@ function tickEco(dt){
    toast('⚠️ Pillards au nord !')}}
  majRes()}
 
-// ══ ENTRÉES (souris, tactile, caméra) ══
-let drag=null,enJeu=false;
-cvs.addEventListener('mousedown',e=>{drag={x:e.clientX,y:e.clientY,cx:cam.x,cy:cam.y,move:false}});
-cvs.addEventListener('mousemove',e=>{if(!drag)return;
- const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
- if(Math.abs(dx)+Math.abs(dy)>8)drag.move=true;
- if(drag.move){cam.x=drag.cx+dx;cam.y=drag.cy+dy}});
-cvs.addEventListener('mouseup',e=>{
- if(drag&&!drag.move)clic(e.clientX,e.clientY,e.button===2);
- drag=null});
-cvs.addEventListener('contextmenu',e=>{e.preventDefault();clic(e.clientX,e.clientY,true)});
-cvs.addEventListener('touchstart',e=>{const t=e.touches[0];drag={x:t.clientX,y:t.clientY,cx:cam.x,cy:cam.y,move:false}},{passive:true});
-cvs.addEventListener('touchmove',e=>{if(!drag)return;const t=e.touches[0];
- const dx=t.clientX-drag.x,dy=t.clientY-drag.y;
- if(Math.abs(dx)+Math.abs(dy)>10)drag.move=true;
- if(drag.move){cam.x=drag.cx+dx;cam.y=drag.cy+dy}e.preventDefault()},{passive:false});
-cvs.addEventListener('touchend',e=>{
- if(drag&&!drag.move){const t=e.changedTouches[0];clic(t.clientX,t.clientY,false)}
- drag=null});
-addEventListener('keydown',e=>{const v=30;
- if(e.key==='ArrowLeft'||e.key==='q')cam.x+=v;if(e.key==='ArrowRight'||e.key==='d')cam.x-=v;
- if(e.key==='ArrowUp'||e.key==='z')cam.y+=v;if(e.key==='ArrowDown'||e.key==='s')cam.y-=v;
+// ══ ENTRÉES 3D (pointeur unifié souris/tactile, pan caméra, raycast) ══
+let enJeu=false;
+function initInput(){
+ const el=renderer.domElement;el.style.touchAction='none';let dr=null;
+ el.addEventListener('pointerdown',e=>{dr={x:e.clientX,y:e.clientY,tx:cam.tx,tz:cam.tz,move:false,btn:e.button}});
+ el.addEventListener('pointermove',e=>{if(!dr)return;
+  const dx=e.clientX-dr.x,dy=e.clientY-dr.y;
+  if(Math.abs(dx)+Math.abs(dy)>9)dr.move=true;
+  if(dr.move){const k=2*VD/innerHeight;
+   cam.tx=dr.tx+(-dx*.7071-dy*1.0)*k;
+   cam.tz=dr.tz+( dx*.7071-dy*1.0)*k;
+   cam.tx=Math.max(2,Math.min(MAP-2,cam.tx));cam.tz=Math.max(2,Math.min(MAP-2,cam.tz))}});
+ el.addEventListener('pointerup',e=>{
+  if(dr&&!dr.move)clic(e.clientX,e.clientY,dr.btn===2);dr=null});
+ el.addEventListener('contextmenu',e=>e.preventDefault())}
+addEventListener('keydown',e=>{const v=1.4;
+ if(e.key==='ArrowLeft'||e.key==='q'){cam.tx-=v*.7;cam.tz+=v*.7}
+ if(e.key==='ArrowRight'||e.key==='d'){cam.tx+=v*.7;cam.tz-=v*.7}
+ if(e.key==='ArrowUp'||e.key==='z'){cam.tx-=v*.7;cam.tz-=v*.7}
+ if(e.key==='ArrowDown'||e.key==='s'){cam.tx+=v*.7;cam.tz+=v*.7}
  if(e.key==='Escape'){S.placer=null;S.sel=null;majActions()}});
 function clic(sx,sy,droit){
- const[tx,ty]=deIso(sx,sy);
+ const ndc=new THREE.Vector2(sx/innerWidth*2-1,-(sy/innerHeight)*2+1);
+ rayc.setFromCamera(ndc,camera);
+ // unités visées ?
+ if(!S.placer&&!S.creatif){
+  const uM=unites.filter(u=>u.mesh&&u.type!=='barbare').map(u=>u.mesh);
+  const hu=rayc.intersectObjects(uM,true)[0];
+  if(hu){let o=hu.object;while(o&&!o.userData.unite)o=o.parent;
+   if(o){S.sel=o.userData.unite;son(660);majActions();verifQuete();return}}}
+ // sol (plan y=0)
+ const pt=new THREE.Vector3();
+ rayc.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,1,0),0),pt);
+ if(!pt)return;
+ const tx=Math.round(pt.x),ty=Math.round(pt.z);
  if(tx<0||ty<0||tx>=MAP||ty>=MAP)return;
  const c=carte[ty][tx];
  // pose de bâtiment
@@ -435,15 +603,11 @@ function clic(sx,sy,droit){
   son(600);S.placer=null;majActions();verifQuete();return}
  // mode créatif : terraformer
  if(S.creatif){
-  if(droit){c.t='eau';c.res=0}
+  if(droit){c.t='eau';c.res=0;c.v=null;c.dec=null;majTuile(tx,ty)}
   else{const cycle=['herbe','foret','roche','or','sable'];
-   c.t=cycle[(cycle.indexOf(c.t)+1)%cycle.length];c.res=c.t==='foret'?60:c.t==='roche'?80:c.t==='or'?50:0}
+   c.t=cycle[(cycle.indexOf(c.t)+1)%cycle.length];c.res=c.t==='foret'?60:c.t==='roche'?80:c.t==='or'?50:0;
+   c.v=c.t==='foret'?'arbre':null;c.dec=null;majTuile(tx,ty)}
   son(500);return}
- // clic sur unité ?
- for(const u of unites){
-  const[ux,uy]=iso(u.x,u.y);
-  if(Math.abs(ux+cam.x-sx)<18&&Math.abs(uy+cam.y-sy)<26&&u.type!=='barbare'){
-   S.sel=u;son(660);majActions();verifQuete();return}}
  // clic sur bâtiment ?
  if(c.bat){S.sel=c.bat;son(660);majActions();return}
  // ordre à l'unité sélectionnée
@@ -496,6 +660,28 @@ function rendre(){
    if(S.sel===u){g.strokeStyle='#e8a33d';g.lineWidth=2;g.beginPath();g.ellipse(X,Y+4,12,6,0,0,7);g.stroke()}}}
  // feu de camp au centre de départ
  const[fx,fy]=iso(22,22);g.drawImage(SPR.feu,fx+cam.x-10,fy+cam.y-8)}
+// ══ RENDU 3D (remplace le rendu 2D ci-dessus) ══
+function rendre(){
+ for(const u of unites){
+  if(!u.mesh){u.mesh=unite3D(u.type,u);scene.add(u.mesh)}
+  const cc=carte[Math.floor(u.y)]&&carte[Math.floor(u.y)][Math.floor(u.x)];
+  u.mesh.position.set(u.x-.5,cc?cc.h:0,u.y-.5);
+  const sw=u.cible?Math.sin(u.t*11)*.55:0;
+  const[j1,j2]=u.mesh.userData.jambes;j1.rotation.x=sw;j2.rotation.x=-sw;
+  if(u.cible)u.mesh.rotation.y=Math.atan2(u.cible[0]-u.x,u.cible[1]-u.y)}
+ for(const a of animaux){
+  if(!a.mesh)continue;
+  const cc=carte[Math.floor(a.y)]&&carte[Math.floor(a.y)][Math.floor(a.x)];
+  a.mesh.position.set(a.x-.5,cc?cc.h:0,a.y-.5);
+  const sw=a.cible?Math.sin(performance.now()/80)*.6:0;
+  a.mesh.userData.jambes.forEach((p,i)=>p.rotation.x=i%2?sw:-sw);
+  if(a.cible)a.mesh.rotation.y=Math.atan2(a.cible[0]-a.x,a.cible[1]-a.y)-Math.PI/2}
+ if(S.sel&&S.sel.mesh){selRing.visible=true;
+  selRing.position.copy(S.sel.mesh.position);selRing.position.y+=.1;
+  const w=S.sel.id?BATS[S.sel.id].w:1;selRing.scale.set(w,w,w)}
+ else selRing.visible=false;
+ majCamera();
+ renderer.render(scene,camera)}
 // ══ UI ══
 function majRes(){
  document.getElementById('rBois').textContent=Math.floor(S.res.bois);
@@ -577,7 +763,7 @@ function passerAge(){
   toast('❌ Il faut : '+Object.entries(A.cout).map(([k,v])=>v+({bois:'🌲',nour:'🍞',pierre:'⛰️',or:'✨'}[k])).join(' '));return}
  S.age++;confettis();son(880);setTimeout(()=>son(1320),250);
  document.getElementById('ageNom').textContent=A.nom;
- for(const id in BATS)SPR['bat_'+id]=spriteBat(id,A.teinte);
+ for(const b of batiments){if(b.mesh)scene.remove(b.mesh);bat3D(b)} // relooke les bâtiments à la nouvelle époque
  majActions();verifQuete();maestroHistoire()}
 document.getElementById('ageBox').onclick=passerAge;
 document.getElementById('btnCreatif').onclick=function(){S.creatif=!S.creatif;
@@ -612,10 +798,10 @@ document.getElementById('btnJouer').onclick=()=>{
  document.getElementById('ecranTitre').classList.add('hidden');
  document.getElementById('ui').classList.remove('hidden');
  if(!enJeu&&unites.length===0){
-  initSprites();genCarte();
+  init3D();genCarte();initSprites();
   creerBat('hdv',20,20,true);
   creerUnite('colon',22.5,22.5);creerUnite('colonne',21.5,23);creerUnite('colon',23,21.5);
-  const[ix,iy]=iso(22,22);cam.x=innerWidth/2-ix;cam.y=innerHeight/2-iy-40}
+  cam.tx=22;cam.tz=22;majCamera()}
  enJeu=true;majRes();majActions();majObjectif();
  setTimeout(()=>{parler('Bienvenue, chef '+(PROFILS.find(p=>p.id===S.profil)||{}).nom+' !',false);
   setTimeout(maestroHistoire,1800)},400)};
